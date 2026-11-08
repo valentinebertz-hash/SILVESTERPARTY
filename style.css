@@ -56,3 +56,6 @@
 
 /* Zusagende Personen deutlich lesbar */
 #liste .pledgeNames{font-weight:800;color:#183e2c;font-size:1.03em;line-height:1.5}
+
+/* Fusszeile auf Smartphones immer einzeilig und zentriert */
+footer{white-space:nowrap;text-align:center;font-size:clamp(10px,2.8vw,16px);padding:26px 6px;overflow:hidden;text-overflow:clip;}
