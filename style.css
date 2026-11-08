@@ -6,3 +6,9 @@
 .language-switch{display:inline-flex;align-items:center;gap:8px;color:#f6e7be;font-size:14px;margin-left:auto;margin-right:12px}.language-switch select{background:#17372e;color:white;border:1px solid #819b8b;border-radius:8px;padding:7px;cursor:pointer}.top{gap:10px}.top .brand{margin-right:auto}@media(max-width:560px){.language-switch span{display:none}.language-switch{margin-right:2px}}
 
 .locationAddress{font-size:1.2rem;font-weight:650;white-space:pre-line;line-height:1.6}.locationForm{max-width:700px;display:grid;gap:14px;margin-top:16px}.locationForm[hidden],#locationDisplay[hidden],#locationEmpty[hidden]{display:none!important}.locationForm label{display:grid;gap:7px}.locationForm textarea{width:100%;box-sizing:border-box}.locationForm .actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Party-Adresse direkt unter dem Banner: gut sichtbar auf Handy und PC */
+#anfahrt{margin-top:0;border:2px solid #d6b46c;background:linear-gradient(135deg,#fffdf5,#f5f9f3);box-shadow:0 6px 24px #203c2820;scroll-margin-top:80px}
+#anfahrt .sectionHead h2{color:#20583d;font-size:clamp(1.3rem,3vw,1.75rem)}
+#anfahrt .locationAddress{overflow-wrap:anywhere}
+@media(max-width:650px){#anfahrt{margin:12px 0 18px;padding:18px 15px}#anfahrt .actions .btn{width:100%}}

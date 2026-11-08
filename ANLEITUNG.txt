@@ -1,0 +1,1 @@
+Party-Adresse ganz oben unter dem Banner. Lade index.html, style.css und sw.js in das Hauptverzeichnis deines GitHub-Repositories hoch und ersetze die bisherigen Dateien. app.js und config.js NICHT ändern. Supabase-SQL NICHT erneut ausführen. Nach GitHub Pages-Update die App neu starten.
