@@ -12,3 +12,27 @@
 #anfahrt .sectionHead h2{color:#20583d;font-size:clamp(1.3rem,3vw,1.75rem)}
 #anfahrt .locationAddress{overflow-wrap:anywhere}
 @media(max-width:650px){#anfahrt{margin:12px 0 18px;padding:18px 15px}#anfahrt .actions .btn{width:100%}}
+
+/* Mobile Mitbringliste: alle Angaben ohne horizontales Wischen */
+@media (max-width:760px){
+  html,body{max-width:100%;overflow-x:clip}
+  #liste .tableWrap{overflow:visible;width:100%}
+  #liste table,#liste tbody{display:block;min-width:0;width:100%}
+  #liste thead{display:none}
+  #liste tr.itemRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 12px;border:1px solid #dde7df;border-radius:14px;padding:15px 13px;margin:12px 0;background:#fff;min-width:0}
+  #liste tr.itemPledged{border-color:#a7d7b1;background:#f6fcf6}
+  #liste tr.itemRow td{display:block;width:auto;min-width:0;padding:0;border:0;overflow-wrap:anywhere}
+  #liste tr.itemRow .itemInfoCell{grid-column:1/-1;grid-row:1}
+  #liste tr.itemRow .itemProgressCell{grid-column:1;grid-row:2}
+  #liste tr.itemRow .itemOpenCell{grid-column:2;grid-row:2;font-weight:700;font-size:.9rem}
+  #liste tr.itemRow .itemProgressCell:before{content:'Zusagen';display:block;font-size:.78rem;color:#64766b;margin-bottom:5px}
+  #liste tr.itemRow .itemOpenCell:before{content:'Offen';display:block;font-weight:400;font-size:.78rem;color:#64766b;margin-bottom:5px}
+  #liste tr.itemRow .itemActionCell{grid-column:1/-1;grid-row:3;border-top:1px solid #e3ebe4;padding-top:10px}
+  #liste tr.itemRow .rowActions{display:flex;flex-wrap:wrap;gap:8px}
+  #liste tr.itemRow .rowActions .btn{flex:1 1 auto;white-space:normal;overflow-wrap:anywhere;font-size:.85rem;padding:10px 9px}
+  #liste .itemName{font-size:1.05rem;line-height:1.35}
+  #liste .itemMeta{font-size:.82rem;line-height:1.45}
+  #liste .progress{height:23px}
+  #liste tbody>tr:not(.itemRow){display:block;padding:16px 0}
+  #liste tbody>tr:not(.itemRow) td{display:block;border:0}
+}

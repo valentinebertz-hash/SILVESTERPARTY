@@ -1,1 +1,9 @@
-Party-Adresse ganz oben unter dem Banner. Lade index.html, style.css und sw.js in das Hauptverzeichnis deines GitHub-Repositories hoch und ersetze die bisherigen Dateien. app.js und config.js NICHT ändern. Supabase-SQL NICHT erneut ausführen. Nach GitHub Pages-Update die App neu starten.
+SILVESTERPARTY – Mobile Mitbringliste
+
+Auf GitHub im Hauptverzeichnis diese vier Dateien ersetzen:
+index.html, app.js, style.css, sw.js
+
+config.js NICHT ersetzen. Supabase und vorhandene Einträge bleiben unverändert.
+Nach dem Commit die Handy-App komplett schließen und erneut öffnen.
+
+Änderungen: Zusagen zuerst, mobile Karten statt seitlich verschiebbarer Tabelle, alle Buttons sichtbar.
