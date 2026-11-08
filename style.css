@@ -63,3 +63,9 @@ footer{white-space:nowrap;text-align:center;font-size:clamp(10px,2.8vw,16px);pad
 /* Footer fix v2: text and year stay on one line on mobile */
 html body footer,html body footer #footerYear{white-space:nowrap!important;}
 html body footer{display:block!important;width:100%!important;max-width:100vw!important;box-sizing:border-box!important;text-align:center!important;font-size:clamp(9px,2.55vw,13px)!important;letter-spacing:-.15px!important;padding:24px 4px!important;overflow:hidden!important;}
+
+/* Footer: two intentional centered lines */
+html body footer.party-footer{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;white-space:normal!important;overflow:visible!important;font-size:clamp(13px,3.3vw,16px)!important;letter-spacing:normal!important;line-height:1.4!important;padding:24px 10px!important;}
+html body footer.party-footer .footer-title{display:block!important;font-weight:700!important;white-space:nowrap!important;}
+html body footer.party-footer .footer-details{display:block!important;white-space:nowrap!important;font-size:clamp(11px,3vw,15px)!important;}
+html body footer.party-footer #footerYear{white-space:nowrap!important;}
