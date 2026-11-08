@@ -1,0 +1,4 @@
+1. PARTY_ADRESSE_EINRICHTEN.sql einmalig im Supabase SQL Editor ausführen.
+2. Auf GitHub NUR index.html, app.js, style.css, sw.js ersetzen.
+3. config.js NICHT ersetzen.
+4. App neu laden. Unter Party-Adresse darf der erste angemeldete Gast den Ort speichern. Nur Admin darf ihn später ändern oder löschen.
