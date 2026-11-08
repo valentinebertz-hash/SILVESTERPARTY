@@ -2,3 +2,5 @@
 
 /* Passwort anzeigen/verbergen */
 .password-field{position:relative;display:block}.password-field input{padding-right:58px}.password-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);height:40px;width:44px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;color:#3c6650;cursor:pointer}.password-toggle:hover{background:#e9f2eb}.password-toggle:focus-visible{outline:2px solid #34864b;outline-offset:1px}.password-toggle .eye-slash{display:none}.password-toggle[aria-pressed="true"] .eye-slash{display:block}
+
+.language-switch{display:inline-flex;align-items:center;gap:8px;color:#f6e7be;font-size:14px;margin-left:auto;margin-right:12px}.language-switch select{background:#17372e;color:white;border:1px solid #819b8b;border-radius:8px;padding:7px;cursor:pointer}.top{gap:10px}.top .brand{margin-right:auto}@media(max-width:560px){.language-switch span{display:none}.language-switch{margin-right:2px}}
