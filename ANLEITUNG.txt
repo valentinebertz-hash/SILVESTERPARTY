@@ -1,9 +1,5 @@
-SILVESTERPARTY – Mobile Mitbringliste
+SILVESTERPARTY – Stern links und Zusagenamen fett
 
-Auf GitHub im Hauptverzeichnis diese vier Dateien ersetzen:
-index.html, app.js, style.css, sw.js
-
-config.js NICHT ersetzen. Supabase und vorhandene Einträge bleiben unverändert.
-Nach dem Commit die Handy-App komplett schließen und erneut öffnen.
-
-Änderungen: Zusagen zuerst, mobile Karten statt seitlich verschiebbarer Tabelle, alle Buttons sichtbar.
+In GitHub die Dateien index.html, app.js, style.css und sw.js ersetzen.
+config.js NICHT ersetzen. Keine Aenderung in Supabase noetig.
+Danach Handy-App vollstaendig schliessen und neu oeffnen.

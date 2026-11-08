@@ -36,3 +36,23 @@
   #liste tbody>tr:not(.itemRow){display:block;padding:16px 0}
   #liste tbody>tr:not(.itemRow) td{display:block;border:0}
 }
+
+/* Kopfzeile: Stern dauerhaft LINKS neben dem Schriftzug halten */
+.top .brand{display:inline-flex;align-items:center;justify-content:flex-start;gap:5px;flex:0 1 auto;min-width:0;white-space:nowrap;margin-right:auto;line-height:1.15}
+.top .brand .brand-star{display:inline-block;flex:none;margin:0;font-size:1.08em;line-height:1}
+.top .brand .brand-text{display:inline-block;flex:none;margin:0;font-size:inherit;line-height:1.15}
+.top #yearTop{margin-left:6px;flex:none;white-space:normal;min-width:0}
+.top .language-switch{flex:none}
+.top #logout{flex:none}
+@media(max-width:560px){
+ .top{gap:7px;padding-left:10px;padding-right:10px}
+ .top .brand{font-size:clamp(.66rem,2.45vw,.86rem);letter-spacing:.025em;gap:4px}
+ .top #yearTop{font-size:.82rem;margin-left:7px;max-width:55px;line-height:1.15}
+ .top .language-switch{margin-left:0;margin-right:0}
+ .top .language-switch select{padding:7px 5px}
+ .top #logout{font-size:.82rem;padding:7px 8px}
+}
+@media(max-width:370px){.top{gap:5px;padding-left:7px;padding-right:7px}.top .brand{font-size:.65rem}.top #yearTop{margin-left:3px;font-size:.75rem;max-width:48px}.top #logout{padding:6px}}
+
+/* Zusagende Personen deutlich lesbar */
+#liste .pledgeNames{font-weight:800;color:#183e2c;font-size:1.03em;line-height:1.5}
