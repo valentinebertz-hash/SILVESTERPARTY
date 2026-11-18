@@ -1,4 +1,10 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#14372d"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=8"><title>Silvesterparty – Wer bringt was?</title></head><body>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#14372d"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=8"><title>Silvesterparty – Wer bringt was?</title><style id="silvester-magic-style">
+#silvester-magic{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout paint;}
+#silvester-magic .magic-spark{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:var(--tone);box-shadow:0 0 9px 2px var(--glow);opacity:0;animation:magic-drift var(--duration) ease-out var(--delay) both;will-change:transform,opacity;}
+#silvester-magic .magic-star{border-radius:1px;transform:rotate(45deg);}
+@keyframes magic-drift{0%{opacity:0;transform:translate3d(-22px,24px,0) scale(.3)}18%{opacity:var(--opacity)}65%{opacity:calc(var(--opacity) * .75)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.15)}}
+@media(prefers-reduced-motion:reduce){#silvester-magic{display:none!important}}
+</style></head><body>
 <header class="top"><a href="#" class="brand"><span class="brand-star" aria-hidden="true">✦</span><span class="brand-text">SILVESTERPARTY</span></a><label class="language-switch"><span id="languageLabel">Sprache</span><select id="languageSelect" aria-label="Sprache / Язык / Language"><option value="de">DE</option><option value="ru">RU</option><option value="en">EN</option></select></label><span id="yearTop">2026 / 2027</span><button id="logout" class="ghost" hidden>Abmelden</button></header>
 <main><section class="hero"><div class="heroShade"><div id="zodiac" class="zodiac">🐎</div><p class="eyebrow">Gemeinsam planen · Gemeinsam feiern</p><h1>Wer bringt was?</h1><p id="partySubtitle">Unsere Silvesterparty</p><div class="heroActions"><a href="#liste" class="btn">Zur Mitbringliste</a><a href="#gaeste" class="btn secondary">Gäste ansehen</a></div></div></section>
 <div id="notice" role="status" aria-live="polite" hidden></div>
@@ -39,4 +45,34 @@ setTimeout(function(){var b=document.getElementById('loginBtn'),n=document.getEl
     preview.src=previewUrl;preview.hidden=false;
   });
 })();
-</script><script type="module" src="./app.js?v=15"></script></body></html>
+</script><script type="module" src="./app.js?v=15"></script><script id="silvester-magic-script">
+(()=>{
+  'use strict';
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  let lastPlayed=0,activeLayer=null,cleanupTimer=null;
+  function magic(){
+    const now=Date.now();if(now-lastPlayed<1800)return;lastPlayed=now;
+    if(activeLayer)activeLayer.remove();if(cleanupTimer)clearTimeout(cleanupTimer);
+    const layer=document.createElement('div');layer.id='silvester-magic';layer.setAttribute('aria-hidden','true');
+    const colors=[['#f5db9b','rgba(255,214,130,.35)'],['#e6edf5','rgba(214,231,255,.3)'],['#fff8e7','rgba(255,244,208,.3)']];
+    const fragment=document.createDocumentFragment();
+    for(let i=0;i<44;i++){
+      const dot=document.createElement('i');const tone=colors[Math.floor(Math.random()*colors.length)];
+      const size=(1.5+Math.random()*3).toFixed(1)+'px';
+      dot.className='magic-spark'+(i%7===0?' magic-star':'');
+      dot.style.cssText=`--x:${(Math.random()*100).toFixed(2)}%;--y:${(15+Math.random()*75).toFixed(2)}%;--size:${size};--tone:${tone[0]};--glow:${tone[1]};--opacity:${(.28+Math.random()*.48).toFixed(2)};--delay:${(Math.random()*.85).toFixed(2)}s;--duration:${(1.8+Math.random()*1.2).toFixed(2)}s;--dx:${(45+Math.random()*100).toFixed(0)}px;--dy:${(-80-Math.random()*160).toFixed(0)}px;`;
+      fragment.appendChild(dot);
+    }
+    layer.appendChild(fragment);document.body.appendChild(layer);activeLayer=layer;
+    cleanupTimer=setTimeout(()=>{layer.remove();if(activeLayer===layer)activeLayer=null;},4300);
+  }
+  function setup(){
+    magic();
+    const app=document.getElementById('app');
+    if(app){let previouslyVisible=!app.hidden;
+      new MutationObserver(()=>{const visible=!app.hidden;if(visible&&!previouslyVisible)magic();previouslyVisible=visible;}).observe(app,{attributes:true,attributeFilter:['hidden']});
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
+})();
+</script></body></html>
