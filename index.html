@@ -1,9 +1,9 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#14372d"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=9"><title>Silvesterparty – Wer bringt was?</title><style id="silvester-magic-style">
-#silvester-magic{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout paint;}
-#silvester-magic .magic-spark{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:var(--tone);box-shadow:0 0 16px 4px var(--glow);opacity:0;animation:magic-drift var(--duration) ease-out var(--delay) both;will-change:transform,opacity;}
-#silvester-magic .magic-star{border-radius:1px;transform:rotate(45deg);}
-@keyframes magic-drift{0%{opacity:0;transform:translate3d(-22px,24px,0) scale(.3)}18%{opacity:var(--opacity)}65%{opacity:var(--opacity)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.15)}}
-@media(prefers-reduced-motion:reduce){#silvester-magic{display:none!important}}
+#silvester-snow{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout paint}
+#silvester-snow .snowflake{position:absolute;left:0;top:0;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff 0%,#f9fdff 30%,#d8e7f3 75%,rgba(210,226,241,.55) 100%);box-shadow:0 0 6px 1px rgba(244,250,255,.55);opacity:0;animation:snow-swirl var(--duration) cubic-bezier(.25,.15,.7,.9) var(--delay) both;will-change:transform,opacity}
+#silvester-snow .snowflake.tiny{box-shadow:0 0 3px rgba(255,255,255,.7)}
+@keyframes snow-swirl{0%{opacity:0;transform:translate3d(var(--x0),var(--y0),0) scale(.7)}12%{opacity:var(--alpha)}45%{opacity:var(--alpha);transform:translate3d(var(--x1),var(--y1),0) scale(1)}80%{opacity:calc(var(--alpha)*.85)}100%{opacity:0;transform:translate3d(var(--x2),var(--y2),0) scale(.8)}}
+@media(prefers-reduced-motion:reduce){#silvester-snow{display:none!important}}
 </style></head><body>
 <header class="top"><a href="#" class="brand"><span class="brand-star" aria-hidden="true">✦</span><span class="brand-text">SILVESTERPARTY</span></a><label class="language-switch"><span id="languageLabel">Sprache</span><select id="languageSelect" aria-label="Sprache / Язык / Language"><option value="de">DE</option><option value="ru">RU</option><option value="en">EN</option></select></label><span id="yearTop">2026 / 2027</span><button id="logout" class="ghost" hidden>Abmelden</button></header>
 <main><section class="hero"><div class="heroShade"><div id="zodiac" class="zodiac">🐎</div><p class="eyebrow">Gemeinsam planen · Gemeinsam feiern</p><h1>Wer bringt was?</h1><p id="partySubtitle">Unsere Silvesterparty</p><div class="heroActions"><a href="#liste" class="btn">Zur Mitbringliste</a><a href="#gaeste" class="btn secondary">Gäste ansehen</a></div></div></section>
@@ -50,30 +50,31 @@ setTimeout(function(){var b=document.getElementById('loginBtn'),n=document.getEl
   'use strict';
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   let lastPlayed=0,activeLayer=null,cleanupTimer=null;
-  function magic(){
+  const random=(min,max)=>min+Math.random()*(max-min);
+  function snowfall(){
     const now=Date.now();if(now-lastPlayed<1800)return;lastPlayed=now;
     if(activeLayer)activeLayer.remove();if(cleanupTimer)clearTimeout(cleanupTimer);
-    const layer=document.createElement('div');layer.id='silvester-magic';layer.setAttribute('aria-hidden','true');
-    const colors=[['#f6cf65','rgba(255,201,76,.48)'],['#dce4ef','rgba(222,234,248,.46)']];
+    const layer=document.createElement('div');layer.id='silvester-snow';layer.setAttribute('aria-hidden','true');
     const fragment=document.createDocumentFragment();
-    for(let i=0;i<90;i++){
-      const dot=document.createElement('i');const tone=colors[Math.floor(Math.random()*colors.length)];
-      const size=((2.5+Math.random()*4.5)*3).toFixed(1)+'px';
-      dot.className='magic-spark'+(i%7===0?' magic-star':'');
-      dot.style.cssText=`--x:${(Math.random()*100).toFixed(2)}%;--y:${(15+Math.random()*75).toFixed(2)}%;--size:${size};--tone:${tone[0]};--glow:${tone[1]};--opacity:${(.55+Math.random()*.35).toFixed(2)};--delay:${(Math.random()*1.8).toFixed(2)}s;--duration:${(7.8+Math.random()*0.4).toFixed(2)}s;--dx:${(45+Math.random()*100).toFixed(0)}px;--dy:${(-80-Math.random()*160).toFixed(0)}px;`;
+    // Mehrere sanfte Schneeböen, mit unterschiedlich großen Flocken und geschwungenen Flugbahnen.
+    for(let i=0;i<115;i++){
+      const dot=document.createElement('i');const size=random(3,12);
+      dot.className='snowflake'+(size<5?' tiny':'');
+      const x=random(-25,100),y=random(-18,105),wind=random(35,115),wave=random(-18,35);
+      const duration=random(5.8,8.3),delay=random(0,1.7);
+      dot.style.cssText=`--size:${size.toFixed(1)}px;--alpha:${random(.45,.88).toFixed(2)};--delay:${delay.toFixed(2)}s;--duration:${duration.toFixed(2)}s;--x0:${x.toFixed(1)}vw;--y0:${y.toFixed(1)}vh;--x1:${(x+wind*.55+wave).toFixed(1)}vw;--y1:${(y+random(4,20)).toFixed(1)}vh;--x2:${(x+wind).toFixed(1)}vw;--y2:${(y+random(18,44)).toFixed(1)}vh;`;
       fragment.appendChild(dot);
     }
     layer.appendChild(fragment);document.body.appendChild(layer);activeLayer=layer;
-    cleanupTimer=setTimeout(()=>{layer.remove();if(activeLayer===layer)activeLayer=null;},10300);
+    cleanupTimer=setTimeout(()=>{layer.remove();if(activeLayer===layer)activeLayer=null;},10000);
   }
   function setup(){
-    magic();
-    // Beim Zurückkehren in die App erneut dezent funkeln lassen.
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)magic();});
-    window.addEventListener('pageshow',e=>{if(e.persisted)magic();});
+    snowfall();
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)snowfall();});
+    window.addEventListener('pageshow',e=>{if(e.persisted)snowfall();});
     const app=document.getElementById('app');
     if(app){let previouslyVisible=!app.hidden;
-      new MutationObserver(()=>{const visible=!app.hidden;if(visible&&!previouslyVisible)magic();previouslyVisible=visible;}).observe(app,{attributes:true,attributeFilter:['hidden']});
+      new MutationObserver(()=>{const visible=!app.hidden;if(visible&&!previouslyVisible)snowfall();previouslyVisible=visible;}).observe(app,{attributes:true,attributeFilter:['hidden']});
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
