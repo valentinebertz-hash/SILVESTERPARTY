@@ -101,12 +101,18 @@ function lostDragCapture(ev){if(dragState&&ev.pointerId===dragState.pointerId)fi
 function moveDrag(ev){
  const state=dragState;if(!state||ev.pointerId!==state.pointerId)return;
  ev.preventDefault();
- const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest('.music-song');
- if(!target||target===state.row||target.parentElement!==musicList)return;
- const rect=target.getBoundingClientRect();
- const before=ev.clientY<rect.top+rect.height/2;
- musicList.insertBefore(state.row,before?target:target.nextSibling);
+ // Pointer Capture macht elementFromPoint auf Mobilgeräten unzuverlässig.
+ // Deshalb anhand der sichtbaren Zeilen-Mittelpunkte einsortieren.
+ const otherRows=[...musicList.querySelectorAll('.music-song')].filter(row=>row!==state.row);
+ const y=ev.clientY;
+ const next=otherRows.find(row=>y<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2);
+ if(next)musicList.insertBefore(state.row,next);
+ else musicList.appendChild(state.row);
  updateDragRanks();
+ // Beim Ziehen an den Bildschirmrand automatisch weiterscrollen.
+ const edge=85;
+ if(y<edge)window.scrollBy(0,-Math.max(7,(edge-y)*0.35));
+ else if(y>window.innerHeight-edge)window.scrollBy(0,Math.max(7,(y-(window.innerHeight-edge))*0.35));
 }
 musicList.addEventListener('pointerdown',ev=>{
  const handle=ev.target.closest('.music-drag-handle');
