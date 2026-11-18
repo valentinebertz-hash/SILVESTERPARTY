@@ -65,7 +65,7 @@ async function start(session){
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)refresh()});
 $('musicForm').addEventListener('submit',async e=>{e.preventDefault();if(!user)return;const url=$('musicUrl').value.trim(),id=trackId(url),title=$('musicTitle').value.trim(),artist=$('musicArtist').value.trim();if(!id)return message('Bitte einen gültigen Spotify-Titellink verwenden (open.spotify.com/track/…).',true);if(!title||!artist)return message('Bitte Songtitel und Interpret eingeben.',true);const button=$('musicSubmit');button.disabled=true;try{const {error}=await db.from('music_wishes').insert({title,artist,spotify_track_id:id,created_by:user.id});if(error)throw error;$('musicForm').reset();message('Musikwunsch hinzugefügt!');await refresh()}catch(err){message(err.code==='23505'?'Dieses Lied steht bereits in der Rangliste. Stimme einfach dafür ab.':err.message,true)}finally{button.disabled=false}});
 $('musicList').addEventListener('click',async e=>{const vote=e.target.closest('[data-music-vote]'),del=e.target.closest('[data-music-delete]');if(!user||(!vote&&!del))return;const id=vote?.dataset.musicVote||del.dataset.musicDelete;try{if(vote){vote.disabled=true;const {data,error}=await db.from('music_votes').select('song_id').eq('song_id',id).eq('user_id',user.id).maybeSingle();if(error)throw error;const result=data?await db.from('music_votes').delete().eq('song_id',id).eq('user_id',user.id):await db.from('music_votes').insert({song_id:id,user_id:user.id});if(result.error)throw result.error}else{if(!confirm('Deinen Musikwunsch löschen? Alle Stimmen dafür werden ebenfalls gelöscht.'))return;const {error}=await db.from('music_wishes').delete().eq('id',id);if(error)throw error}await refresh()}catch(err){message(err.message,true);await refresh()}});
-// Spotify-oEmbed liefert nicht immer den Interpreten. Verschiedene Titel-Formate auswerten.
+// Metadaten aus Spotify; bei fehlendem Interpreten zusätzlich im iTunes-Katalog suchen.
 function parseSpotifyMetadata(data){
  const raw=String(data?.title||'').trim();
  const author=String(data?.author_name||'').trim();
@@ -80,19 +80,38 @@ function parseSpotifyMetadata(data){
  const validAuthor=author&&!/^(spotify|spotify ab|spotify music)$/i.test(author);
  return {title:raw,artist:validAuthor?author:''};
 }
+function normalizedSong(s){return String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s*\((?:remaster(?:ed)?|live|radio edit|explicit|clean|single version)[^)]*\)/gi,'').replace(/[^a-z0-9]+/g,' ').trim()}
+async function lookupArtistByTitle(title){
+ const query=title.trim();if(query.length<2)return '';
+ const url='https://itunes.apple.com/search?'+new URLSearchParams({term:query,entity:'song',limit:'25',country:'DE'});
+ const response=await fetch(url,{headers:{Accept:'application/json'}});
+ if(!response.ok)throw Error('Musiksuche nicht erreichbar');
+ const payload=await response.json();
+ const target=normalizedSong(query);
+ const candidates=(payload.results||[]).filter(x=>x.kind==='song'&&x.artistName&&normalizedSong(x.trackName)===target);
+ // Nur eindeutige Künstler übernehmen: bei mehreren verschiedenen Interpreten keine falsche Zuordnung.
+ const artists=new Map();for(const x of candidates){const key=normalizedSong(x.artistName);if(key&&!artists.has(key))artists.set(key,x.artistName)}
+ return artists.size===1?[...artists.values()][0]:'';
+}
 let musicMetadataRequest=0;
-$('musicUrl').addEventListener('change',async()=>{
+async function autofillMusic(){
  const id=trackId($('musicUrl').value.trim());if(!id)return;
  const request=++musicMetadataRequest;
+ const stillCurrent=()=>request===musicMetadataRequest&&trackId($('musicUrl').value.trim())===id;
+ message('Titel und Interpret werden gesucht …');
  try{
   const r=await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent('https://open.spotify.com/track/'+id));
-  if(!r.ok)return;
-  const data=await r.json();
-  if(request!==musicMetadataRequest||trackId($('musicUrl').value.trim())!==id)return;
-  const meta=parseSpotifyMetadata(data);
-  if(meta.title&&!$('musicTitle').value)$('musicTitle').value=meta.title;
-  if(meta.artist&&!$('musicArtist').value)$('musicArtist').value=meta.artist;
-  if(!meta.artist&&!$('musicArtist').value)message('Songtitel übernommen. Spotify liefert den Interpreten für diesen Link leider nicht mit – bitte ergänze ihn kurz manuell.');
- }catch{message('Spotify-Titeldaten konnten nicht vollständig geladen werden. Bitte Titel und Interpret manuell ergänzen.');}
-});
+  if(!r.ok)throw Error('Spotify-Metadaten nicht erreichbar');
+  const meta=parseSpotifyMetadata(await r.json());
+  if(!stillCurrent())return;
+  if(meta.title)$('musicTitle').value=meta.title;
+  if(meta.artist){$('musicArtist').value=meta.artist;message('Titel und Interpret automatisch übernommen.');return;}
+  const artist=await lookupArtistByTitle(meta.title);
+  if(!stillCurrent())return;
+  if(artist){$('musicArtist').value=artist;message('Titel und Interpret automatisch übernommen.');}
+  else message('Titel übernommen. Der Interpret konnte nicht eindeutig zugeordnet werden. Bitte nur in diesem Fall ergänzen.');
+ }catch(err){if(stillCurrent())message('Automatische Musikerkennung derzeit nicht vollständig verfügbar. Bitte Angaben prüfen.');}
+}
+$('musicUrl').addEventListener('change',autofillMusic);
+$('musicUrl').addEventListener('paste',()=>setTimeout(autofillMusic,0));
 db.auth.getSession().then(({data,error})=>{if(error)throw error;return start(data.session)}).catch(e=>message(e.message,true));db.auth.onAuthStateChange((event,session)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event))setTimeout(()=>start(session).catch(e=>message(e.message,true)),0)});
