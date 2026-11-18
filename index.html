@@ -60,11 +60,11 @@ setTimeout(function(){var b=document.getElementById('loginBtn'),n=document.getEl
       const dot=document.createElement('i');const tone=colors[Math.floor(Math.random()*colors.length)];
       const size=((2.5+Math.random()*4.5)*3).toFixed(1)+'px';
       dot.className='magic-spark'+(i%7===0?' magic-star':'');
-      dot.style.cssText=`--x:${(Math.random()*100).toFixed(2)}%;--y:${(15+Math.random()*75).toFixed(2)}%;--size:${size};--tone:${tone[0]};--glow:${tone[1]};--opacity:${(.55+Math.random()*.35).toFixed(2)};--delay:${(Math.random()*1.1).toFixed(2)}s;--duration:${(2.6+Math.random()*1.2).toFixed(2)}s;--dx:${(45+Math.random()*100).toFixed(0)}px;--dy:${(-80-Math.random()*160).toFixed(0)}px;`;
+      dot.style.cssText=`--x:${(Math.random()*100).toFixed(2)}%;--y:${(15+Math.random()*75).toFixed(2)}%;--size:${size};--tone:${tone[0]};--glow:${tone[1]};--opacity:${(.55+Math.random()*.35).toFixed(2)};--delay:${(Math.random()*1.8).toFixed(2)}s;--duration:${(7.8+Math.random()*0.4).toFixed(2)}s;--dx:${(45+Math.random()*100).toFixed(0)}px;--dy:${(-80-Math.random()*160).toFixed(0)}px;`;
       fragment.appendChild(dot);
     }
     layer.appendChild(fragment);document.body.appendChild(layer);activeLayer=layer;
-    cleanupTimer=setTimeout(()=>{layer.remove();if(activeLayer===layer)activeLayer=null;},5500);
+    cleanupTimer=setTimeout(()=>{layer.remove();if(activeLayer===layer)activeLayer=null;},10300);
   }
   function setup(){
     magic();
