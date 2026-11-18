@@ -80,18 +80,30 @@ function parseSpotifyMetadata(data){
  const validAuthor=author&&!/^(spotify|spotify ab|spotify music)$/i.test(author);
  return {title:raw,artist:validAuthor?author:''};
 }
-function normalizedSong(s){return String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s*\((?:remaster(?:ed)?|live|radio edit|explicit|clean|single version)[^)]*\)/gi,'').replace(/[^a-z0-9]+/g,' ').trim()}
+function normalizedSong(s){return String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+function baseSongTitle(title){
+ return String(title||'').replace(/\s*[-–—]\s*(?:studio recording|from [\"“]|live|remaster(?:ed)?|radio edit|single version|acoustic|instrumental|karaoke|original mix|feat\.?|ft\.?)[^]*$/i,'').replace(/\s*\((?:feat\.?|ft\.?|live|remaster(?:ed)?|radio edit|single version|acoustic|instrumental)[^)]*\)/gi,'').trim();
+}
 async function lookupArtistByTitle(title){
- const query=title.trim();if(query.length<2)return '';
- const url='https://itunes.apple.com/search?'+new URLSearchParams({term:query,entity:'song',limit:'25',country:'DE'});
- const response=await fetch(url,{headers:{Accept:'application/json'}});
- if(!response.ok)throw Error('Musiksuche nicht erreichbar');
- const payload=await response.json();
- const target=normalizedSong(query);
- const candidates=(payload.results||[]).filter(x=>x.kind==='song'&&x.artistName&&normalizedSong(x.trackName)===target);
- // Nur eindeutige Künstler übernehmen: bei mehreren verschiedenen Interpreten keine falsche Zuordnung.
- const artists=new Map();for(const x of candidates){const key=normalizedSong(x.artistName);if(key&&!artists.has(key))artists.set(key,x.artistName)}
- return artists.size===1?[...artists.values()][0]:'';
+ const base=baseSongTitle(title),target=normalizedSong(base);
+ if(target.length<2)return '';
+ // Spotify nennt oft einen langen Versionszusatz, den andere Kataloge nicht enthalten.
+ const queries=[base];if(normalizedSong(title)!==target)queries.push(title);
+ for(const query of queries){
+  const url='https://itunes.apple.com/search?'+new URLSearchParams({term:query,entity:'song',limit:'100',country:'DE'});
+  const response=await fetch(url,{headers:{Accept:'application/json'}});
+  if(!response.ok)continue;
+  const payload=await response.json();
+  const matches=(payload.results||[]).filter(x=>x.kind==='song'&&x.artistName&&normalizedSong(baseSongTitle(x.trackName))===target);
+  if(!matches.length)continue;
+  // Nimm den häufigsten Interpreten nur bei einem klaren Vorsprung, sonst keine Vermutung.
+  const counts=new Map();
+  for(const x of matches){const key=normalizedSong(x.artistName);if(!key)continue;const entry=counts.get(key)||{name:x.artistName,count:0,rank:0};entry.count++;entry.rank+=Number(x.trackPrice||0)>0?1:0;counts.set(key,entry)}
+  const ranked=[...counts.values()].sort((a,b)=>b.count-a.count||b.rank-a.rank);
+  if(ranked.length===1)return ranked[0].name;
+  if(ranked[0]?.count>=2 && ranked[0].count>=2*ranked[1].count)return ranked[0].name;
+ }
+ return '';
 }
 let musicMetadataRequest=0;
 async function autofillMusic(){
