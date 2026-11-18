@@ -2,7 +2,7 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from './config.js';
 const $=id=>document.getElementById(id);
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let user=null,channel=null,loading=false,draggingSong=false,adminMusic=false,seenMusicIds=new Set(),pendingMusic=new Map();
+let user=null,channel=null,loading=false,draggingSong=false,editingSongId=null,adminMusic=false,seenMusicIds=new Set(),pendingMusic=new Map();
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const message=(text,error=false)=>{const el=$('musicNotice');el.textContent=text;el.hidden=false;el.style.color=error?'#a12e32':''};
 function trackId(url){try{const u=new URL(url);if(u.protocol!=='https:'||!['open.spotify.com','play.spotify.com'].includes(u.hostname))return null;const m=u.pathname.match(/^\/(?:intl-[a-z]{2}\/)?track\/([a-zA-Z0-9]{22})\/?$/);return m?.[1]||null}catch{return null}}
@@ -73,7 +73,7 @@ function editDistance(a,b){
  }return prev[b.length];
 }
 $('musicArtist')?.addEventListener('input',showArtistSuggestions);
-async function refresh(){if(!user||loading||draggingSong)return;loading=true;try{
+async function refresh(){if(!user||loading||draggingSong||editingSongId)return;loading=true;try{
  const [{data:songs,error:e1},{data:votes,error:e2}]=await Promise.all([db.from('music_wishes').select('id,title,artist,spotify_track_id,created_by,created_at,sort_order').order('created_at',{ascending:true}),db.from('music_votes').select('song_id,user_id')]);
  if(e1||e2)throw e1||e2;
  // Bereits eingetragene Interpreten als Vorschläge aus der gemeinsamen Liste sammeln.
@@ -81,7 +81,7 @@ async function refresh(){if(!user||loading||draggingSong)return;loading=true;try
  if(adminMusic)checkNewMusic(songs);
  const totals=new Map(),mine=new Set();for(const v of votes){totals.set(v.song_id,(totals.get(v.song_id)||0)+1);if(v.user_id===user.id)mine.add(v.song_id)}
  songs.sort((a,b)=>(a.sort_order??Number.MAX_SAFE_INTEGER)-(b.sort_order??Number.MAX_SAFE_INTEGER)||((a.sort_order==null&&b.sort_order==null)?(totals.get(b.id)||0)-(totals.get(a.id)||0):0)||new Date(a.created_at)-new Date(b.created_at));
- $('musicList').innerHTML=songs.length?songs.map((s,i)=>{const count=totals.get(s.id)||0,liked=mine.has(s.id);return `<article class="music-song" data-song-id="${s.id}"><button type="button" class="music-drag-handle" aria-label="${escapeHtml(s.title)} ziehen und neu platzieren" title="Gedrückt halten und an die gewünschte Position ziehen">⠿</button><span class="music-rank">${i+1}.</span><div class="music-move"><button type="button" data-music-move="${s.id}" data-direction="-1" ${i===0?'disabled':''} title="Titel nach oben schieben" aria-label="${escapeHtml(s.title)} nach oben schieben">▲</button><button type="button" data-music-move="${s.id}" data-direction="1" ${i===songs.length-1?'disabled':''} title="Titel nach unten schieben" aria-label="${escapeHtml(s.title)} nach unten schieben">▼</button></div><div class="music-song-main"><strong>${escapeHtml(s.title)}</strong><div class="muted small">${escapeHtml(s.artist)}</div><a href="https://open.spotify.com/track/${s.spotify_track_id}" target="_blank" rel="noopener noreferrer">♫ Auf Spotify öffnen</a></div><div class="music-vote"><button type="button" class="btn ${liked?'secondary':''}" data-music-vote="${s.id}" aria-pressed="${liked}">${liked?'♥ Stimme zurücknehmen':'♡ Abstimmen'}</button><span>${count} ${count===1?'Stimme':'Stimmen'}</span>${s.created_by===user.id?`<button type="button" class="music-delete" data-music-delete="${s.id}" title="Eigenen Wunsch löschen">×</button>`:''}</div></article>`}).join(''):'<p class="muted">Noch keine Musikwünsche. Sei die erste Person!</p>';
+ $('musicList').innerHTML=songs.length?songs.map((s,i)=>{const count=totals.get(s.id)||0,liked=mine.has(s.id);return `<article class="music-song" data-song-id="${s.id}"><button type="button" class="music-drag-handle" aria-label="${escapeHtml(s.title)} ziehen und neu platzieren" title="Gedrückt halten und an die gewünschte Position ziehen">⠿</button><span class="music-rank">${i+1}.</span><div class="music-move"><button type="button" data-music-move="${s.id}" data-direction="-1" ${i===0?'disabled':''} title="Titel nach oben schieben" aria-label="${escapeHtml(s.title)} nach oben schieben">▲</button><button type="button" data-music-move="${s.id}" data-direction="1" ${i===songs.length-1?'disabled':''} title="Titel nach unten schieben" aria-label="${escapeHtml(s.title)} nach unten schieben">▼</button></div><div class="music-song-main"><strong>${escapeHtml(s.title)}</strong><div class="muted small">${escapeHtml(s.artist)}</div><a href="https://open.spotify.com/track/${s.spotify_track_id}" target="_blank" rel="noopener noreferrer">♫ Auf Spotify öffnen</a></div><div class="music-vote"><button type="button" class="btn ${liked?'secondary':''}" data-music-vote="${s.id}" aria-pressed="${liked}">${liked?'♥ Stimme zurücknehmen':'♡ Abstimmen'}</button><span>${count} ${count===1?'Stimme':'Stimmen'}</span>${(s.created_by===user.id||adminMusic)?`<button type="button" class="music-edit" data-music-edit="${s.id}" title="Titel oder Interpret korrigieren">✎ Bearbeiten</button>`:''}${s.created_by===user.id?`<button type="button" class="music-delete" data-music-delete="${s.id}" title="Eigenen Wunsch löschen">×</button>`:''}</div></article>`}).join(''):'<p class="muted">Noch keine Musikwünsche. Sei die erste Person!</p>';
  }catch(e){message('Musikwünsche konnten nicht geladen werden: '+e.message,true)}finally{loading=false}}
 // Zuverlässige Aktualisierung ohne Realtime-Kanal; vermeidet doppelte music-live-Abos.
 let refreshTimer=null;
@@ -148,7 +148,27 @@ $('musicList').addEventListener('click',async e=>{
  const move=e.target.closest('[data-music-move]');
  const vote=e.target.closest('[data-music-vote]');
  const del=e.target.closest('[data-music-delete]');
- if(!user||(!move&&!vote&&!del))return;
+ const edit=e.target.closest('[data-music-edit]');
+ const cancel=e.target.closest('[data-music-cancel]');
+ const save=e.target.closest('[data-music-save]');
+ if(!user||(!move&&!vote&&!del&&!edit&&!cancel&&!save))return;
+ if(cancel){editingSongId=null;await refresh();return;}
+ if(edit){
+  if(editingSongId)return;
+  const row=edit.closest('.music-song'),main=row.querySelector('.music-song-main');
+  const title=main.querySelector('strong').textContent,artist=main.querySelector('.muted.small').textContent;
+  editingSongId=edit.dataset.musicEdit;
+  main.innerHTML=`<div class="music-edit-fields"><label>Songtitel<input class="music-edit-title" maxlength="160" required></label><label>Interpret<input class="music-edit-artist" list="musicArtistSuggestions" maxlength="160" required></label><div class="music-edit-actions"><button type="button" class="btn" data-music-save="${editingSongId}">Speichern</button><button type="button" class="btn secondary" data-music-cancel>Abbrechen</button></div></div>`;
+  main.querySelector('.music-edit-title').value=title;main.querySelector('.music-edit-artist').value=artist;
+  main.querySelector('.music-edit-title').focus();return;
+ }
+ if(save){
+  const row=save.closest('.music-song'),title=row.querySelector('.music-edit-title').value.trim(),artist=row.querySelector('.music-edit-artist').value.trim();
+  if(!title||!artist){message('Bitte Titel und Interpret eingeben.',true);return;}
+  save.disabled=true;
+  try{const {data,error}=await db.from('music_wishes').update({title,artist}).eq('id',save.dataset.musicSave).select('id');if(error)throw error;if(!data?.length)throw Error('Keine Berechtigung zum Bearbeiten. Bitte die neue SQL-Datei in Supabase ausführen.');editingSongId=null;message('Musikwunsch korrigiert und gespeichert.');await refresh();}
+  catch(err){save.disabled=false;message('Speichern nicht möglich: '+err.message,true)}return;
+ }
  if(move){
   if(movingSong)return;
   movingSong=true;
