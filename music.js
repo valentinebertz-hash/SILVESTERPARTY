@@ -65,70 +65,48 @@ async function start(session){
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)refresh()});
 $('musicForm').addEventListener('submit',async e=>{e.preventDefault();if(!user)return;const url=$('musicUrl').value.trim(),id=trackId(url),title=$('musicTitle').value.trim(),artist=$('musicArtist').value.trim();if(!id)return message('Bitte einen gültigen Spotify-Titellink verwenden (open.spotify.com/track/…).',true);if(!title||!artist)return message('Bitte Songtitel und Interpret eingeben.',true);const button=$('musicSubmit');button.disabled=true;try{const {error}=await db.from('music_wishes').insert({title,artist,spotify_track_id:id,created_by:user.id});if(error)throw error;$('musicForm').reset();message('Musikwunsch hinzugefügt!');await refresh()}catch(err){message(err.code==='23505'?'Dieses Lied steht bereits in der Rangliste. Stimme einfach dafür ab.':err.message,true)}finally{button.disabled=false}});
 let movingSong=false;
-// Gemeinsames Drag & Drop: funktioniert mit Maus, Touch und Stift.
-// Während des Ziehens werden die DOM-Zeilen umsortiert; gespeichert wird erst beim Loslassen.
-let dragState=null;
+// SortableJS handles touch, mouse, scrolling and reordering consistently.
+// Keep the DOM stable during dragging; persist only after dropping.
 const musicList=$('musicList');
-function updateDragRanks(){
- [...musicList.querySelectorAll('.music-song')].forEach((row,i)=>{
-  const rank=row.querySelector('.music-rank');if(rank)rank.textContent=(i+1)+'.';
+let musicSorter=null;
+function initMusicSorting(){
+ if(musicSorter)return;
+ if(typeof window.Sortable==='undefined'){
+  message('Ziehen konnte nicht geladen werden. Bitte Internetverbindung prüfen oder die Pfeile verwenden.',true);
+  return;
+ }
+ musicSorter=new window.Sortable(musicList,{
+  animation:180,
+  handle:'.music-drag-handle',
+  draggable:'.music-song',
+  ghostClass:'music-dragging',
+  chosenClass:'music-dragging',
+  forceFallback:true,
+  fallbackOnBody:true,
+  fallbackTolerance:3,
+  touchStartThreshold:3,
+  scroll:true,
+  scrollSensitivity:90,
+  scrollSpeed:12,
+  onStart(){draggingSong=true;document.body.classList.add('music-is-dragging')},
+  async onEnd(evt){
+   document.body.classList.remove('music-is-dragging');
+   const id=evt.item?.dataset.songId;
+   const newIndex=evt.newDraggableIndex;
+   const oldIndex=evt.oldDraggableIndex;
+   if(newIndex===oldIndex||!id){draggingSong=false;await refresh();return}
+   try{
+    const {error}=await db.rpc('move_music_wish_to_position',{p_song_id:id,p_new_position:newIndex+1});
+    if(error)throw error;
+    message('Neue Reihenfolge für alle gespeichert.');
+   }catch(err){
+    message('Reihenfolge konnte nicht gespeichert werden: '+err.message+' – Bitte die SQL-Datei in Supabase prüfen.',true);
+   }finally{draggingSong=false;await refresh()}
+  }
  });
 }
-function finishDrag(ev,cancel=false){
- const state=dragState;if(!state||ev.pointerId!==state.pointerId)return;
- dragState=null;
- document.removeEventListener('pointermove',moveDrag);
- document.removeEventListener('pointerup',finishDrag);
- document.removeEventListener('pointercancel',cancelDrag);
- state.handle.removeEventListener('lostpointercapture',lostDragCapture);
- try{if(state.handle.hasPointerCapture(ev.pointerId))state.handle.releasePointerCapture(ev.pointerId)}catch{}
- state.row.classList.remove('music-dragging');
- document.body.classList.remove('music-is-dragging');
- const rows=[...musicList.querySelectorAll('.music-song')];
- const newIndex=rows.indexOf(state.row);
- if(cancel||newIndex===state.startIndex){draggingSong=false;refresh();return;}
- (async()=>{
-  try{
-   const {error}=await db.rpc('move_music_wish_to_position',{p_song_id:state.id,p_new_position:newIndex+1});
-   if(error)throw error;
-   message('Neue Reihenfolge für alle gespeichert.');
-  }catch(err){message('Reihenfolge konnte nicht gespeichert werden: '+err.message+' – Bitte die neue SQL-Datei in Supabase ausführen.',true)}
-  finally{draggingSong=false;await refresh()}
- })();
-}
-function cancelDrag(ev){finishDrag(ev,true)}
-function lostDragCapture(ev){if(dragState&&ev.pointerId===dragState.pointerId)finishDrag(ev,true)}
-function moveDrag(ev){
- const state=dragState;if(!state||ev.pointerId!==state.pointerId)return;
- ev.preventDefault();
- // Pointer Capture macht elementFromPoint auf Mobilgeräten unzuverlässig.
- // Deshalb anhand der sichtbaren Zeilen-Mittelpunkte einsortieren.
- const otherRows=[...musicList.querySelectorAll('.music-song')].filter(row=>row!==state.row);
- const y=ev.clientY;
- const next=otherRows.find(row=>y<row.getBoundingClientRect().top+row.getBoundingClientRect().height/2);
- if(next)musicList.insertBefore(state.row,next);
- else musicList.appendChild(state.row);
- updateDragRanks();
- // Beim Ziehen an den Bildschirmrand automatisch weiterscrollen.
- const edge=85;
- if(y<edge)window.scrollBy(0,-Math.max(7,(edge-y)*0.35));
- else if(y>window.innerHeight-edge)window.scrollBy(0,Math.max(7,(y-(window.innerHeight-edge))*0.35));
-}
-musicList.addEventListener('pointerdown',ev=>{
- const handle=ev.target.closest('.music-drag-handle');
- if(!handle||!user||dragState||movingSong||loading)return;
- if(ev.pointerType==='mouse'&&ev.button!==0)return;
- const row=handle.closest('.music-song');
- dragState={id:row.dataset.songId,row,handle,pointerId:ev.pointerId,startIndex:[...musicList.querySelectorAll('.music-song')].indexOf(row)};
- draggingSong=true;
- row.classList.add('music-dragging');document.body.classList.add('music-is-dragging');
- handle.setPointerCapture(ev.pointerId);
- document.addEventListener('pointermove',moveDrag,{passive:false});
- document.addEventListener('pointerup',finishDrag);
- document.addEventListener('pointercancel',cancelDrag);
- handle.addEventListener('lostpointercapture',lostDragCapture);
- ev.preventDefault();
-});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMusicSorting,{once:true});
+else initMusicSorting();
 
 $('musicList').addEventListener('click',async e=>{
  const move=e.target.closest('[data-music-move]');
