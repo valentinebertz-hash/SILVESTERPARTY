@@ -64,7 +64,47 @@ async function start(session){
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)refresh()});
 $('musicForm').addEventListener('submit',async e=>{e.preventDefault();if(!user)return;const url=$('musicUrl').value.trim(),id=trackId(url),title=$('musicTitle').value.trim(),artist=$('musicArtist').value.trim();if(!id)return message('Bitte einen gültigen Spotify-Titellink verwenden (open.spotify.com/track/…).',true);if(!title||!artist)return message('Bitte Songtitel und Interpret eingeben.',true);const button=$('musicSubmit');button.disabled=true;try{const {error}=await db.from('music_wishes').insert({title,artist,spotify_track_id:id,created_by:user.id});if(error)throw error;$('musicForm').reset();message('Musikwunsch hinzugefügt!');await refresh()}catch(err){message(err.code==='23505'?'Dieses Lied steht bereits in der Rangliste. Stimme einfach dafür ab.':err.message,true)}finally{button.disabled=false}});
-$('musicList').addEventListener('click',async e=>{const vote=e.target.closest('[data-music-vote]'),del=e.target.closest('[data-music-delete]');if(!user||(!vote&&!del))return;const id=vote?.dataset.musicVote||del.dataset.musicDelete;try{if(vote){vote.disabled=true;const {data,error}=await db.from('music_votes').select('song_id').eq('song_id',id).eq('user_id',user.id).maybeSingle();if(error)throw error;const result=data?await db.from('music_votes').delete().eq('song_id',id).eq('user_id',user.id):await db.from('music_votes').insert({song_id:id,user_id:user.id});if(result.error)throw result.error}else{if(!confirm('Deinen Musikwunsch löschen? Alle Stimmen dafür werden ebenfalls gelöscht.'))return;const {error}=await db.from('music_wishes').delete().eq('id',id);if(error)throw error}await refresh()}catch(err){message(err.message,true);await refresh()}});
+let movingSong=false;
+$('musicList').addEventListener('click',async e=>{
+ const move=e.target.closest('[data-music-move]');
+ const vote=e.target.closest('[data-music-vote]');
+ const del=e.target.closest('[data-music-delete]');
+ if(!user||(!move&&!vote&&!del))return;
+ if(move){
+  if(movingSong)return;
+  movingSong=true;
+  const buttons=$('musicList').querySelectorAll('[data-music-move]');
+  buttons.forEach(b=>b.disabled=true);
+  try{
+   const direction=Number(move.dataset.direction);
+   const {error}=await db.rpc('move_music_wish',{p_song_id:move.dataset.musicMove,p_direction:direction});
+   if(error)throw error;
+   await refresh();
+  }catch(err){
+   message('Verschieben nicht möglich: '+err.message+' – Bitte prüfen, ob gemeinsame-rangliste.sql in Supabase ausgeführt wurde.',true);
+   await refresh();
+  }finally{
+   movingSong=false;
+   $('musicList').querySelectorAll('[data-music-move]').forEach(b=>{const row=b.closest('.music-song');const rows=[...$('musicList').querySelectorAll('.music-song')];const i=rows.indexOf(row);b.disabled=(b.dataset.direction==='-1'&&i===0)||(b.dataset.direction==='1'&&i===rows.length-1)});
+  }
+  return;
+ }
+ const id=vote?.dataset.musicVote||del.dataset.musicDelete;
+ try{
+  if(vote){
+   vote.disabled=true;
+   const {data,error}=await db.from('music_votes').select('song_id').eq('song_id',id).eq('user_id',user.id).maybeSingle();
+   if(error)throw error;
+   const result=data?await db.from('music_votes').delete().eq('song_id',id).eq('user_id',user.id):await db.from('music_votes').insert({song_id:id,user_id:user.id});
+   if(result.error)throw result.error;
+  }else{
+   if(!confirm('Deinen Musikwunsch löschen? Alle Stimmen dafür werden ebenfalls gelöscht.'))return;
+   const {error}=await db.from('music_wishes').delete().eq('id',id);
+   if(error)throw error;
+  }
+  await refresh();
+ }catch(err){message(err.message,true);await refresh()}
+});
 // Metadaten aus Spotify; bei fehlendem Interpreten zusätzlich im iTunes-Katalog suchen.
 function parseSpotifyMetadata(data){
  const raw=String(data?.title||'').trim();
