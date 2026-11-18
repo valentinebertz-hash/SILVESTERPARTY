@@ -39,9 +39,45 @@ async function setAdminMusic(){
  adminMusic=data?.role==='admin';
  if(adminMusic){try{const stored=JSON.parse(localStorage.getItem(seenKey(user.id))||'null');seenMusicIds=new Set(Array.isArray(stored)?stored:[])}catch{seenMusicIds=new Set()}}
 }
+let knownArtists=[];
+const normalizeArtist=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').trim();
+function updateArtistSuggestions(songs){
+ const unique=new Map();
+ for(const song of songs){
+  const artist=String(song.artist||'').trim();
+  if(artist&&!unique.has(normalizeArtist(artist)))unique.set(normalizeArtist(artist),artist);
+ }
+ knownArtists=[...unique.values()].sort((a,b)=>a.localeCompare(b,'de'));
+ showArtistSuggestions();
+}
+function showArtistSuggestions(){
+ const el=$('musicArtistSuggestions');if(!el)return;
+ const typed=normalizeArtist($('musicArtist')?.value);
+ const ranked=knownArtists.map(name=>{
+  const n=normalizeArtist(name);
+  let score=n.startsWith(typed)?0:n.includes(typed)?1:2;
+  // Auch leicht abweichende Schreibweisen in der Vorschlagsquelle berücksichtigen.
+  if(score===2&&typed.length>=3){
+   const prefix=n.slice(0,Math.max(typed.length,Math.min(n.length,typed.length+2)));
+   const d=editDistance(typed,prefix);
+   if(d<=Math.max(1,Math.floor(typed.length/4)))score=2;else score=9;
+  }
+  return {name,score};
+ }).filter(x=>!typed||x.score<9).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name,'de')).slice(0,15);
+ el.replaceChildren(...ranked.map(x=>{const o=document.createElement('option');o.value=x.name;return o}));
+}
+function editDistance(a,b){
+ let prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  const curr=[i];for(let j=1;j<=b.length;j++)curr[j]=Math.min(curr[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=curr;
+ }return prev[b.length];
+}
+$('musicArtist')?.addEventListener('input',showArtistSuggestions);
 async function refresh(){if(!user||loading||draggingSong)return;loading=true;try{
  const [{data:songs,error:e1},{data:votes,error:e2}]=await Promise.all([db.from('music_wishes').select('id,title,artist,spotify_track_id,created_by,created_at,sort_order').order('created_at',{ascending:true}),db.from('music_votes').select('song_id,user_id')]);
  if(e1||e2)throw e1||e2;
+ // Bereits eingetragene Interpreten als Vorschläge aus der gemeinsamen Liste sammeln.
+ updateArtistSuggestions(songs);
  if(adminMusic)checkNewMusic(songs);
  const totals=new Map(),mine=new Set();for(const v of votes){totals.set(v.song_id,(totals.get(v.song_id)||0)+1);if(v.user_id===user.id)mine.add(v.song_id)}
  songs.sort((a,b)=>(a.sort_order??Number.MAX_SAFE_INTEGER)-(b.sort_order??Number.MAX_SAFE_INTEGER)||((a.sort_order==null&&b.sort_order==null)?(totals.get(b.id)||0)-(totals.get(a.id)||0):0)||new Date(a.created_at)-new Date(b.created_at));
