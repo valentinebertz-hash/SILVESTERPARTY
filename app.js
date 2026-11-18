@@ -257,23 +257,47 @@ document.getElementById('languageSelect')?.addEventListener('change',e=>{partyLa
 
 translateParty();
 
-// Veranstaltungsort: erstmalige Eingabe durch angemeldete Gäste; Änderungen/Löschen nur Admin.
+// Veranstaltungsort: Adresse, Google-Maps-Link und Foto.
+let locationPreviewUrl=null;
+const locationImageBucket='party-images';
+function validMapsUrl(value){
+ if(!value)return true;
+ try{const u=new URL(value);return u.protocol==='https:' && (u.hostname==='google.com'||u.hostname.endsWith('.google.com')||u.hostname==='maps.app.goo.gl'||u.hostname==='goo.gl');}catch{return false}
+}
+function clearLocationPreview(){if(locationPreviewUrl){URL.revokeObjectURL(locationPreviewUrl);locationPreviewUrl=null}$('locationPhotoPreview').hidden=true;$('locationPhotoPreview').removeAttribute('src')}
 function renderPartyLocation(){
  const has=!!partyLocation?.address;
- $('locationEmpty').hidden=has;
- $('locationDisplay').hidden=!has;
+ $('locationEmpty').hidden=has;$('locationDisplay').hidden=!has;
  $('locationText').textContent=has?partyLocation.address:'';
- if(has)$('locationMaps').href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(partyLocation.address);
- $('locationEdit').hidden=!has||!admin();$('locationDelete').hidden=!has||!admin();
- $('locationForm').hidden=has;
- if(!has)$('locationAddress').value='';
+ const maps=partyLocation?.maps_url;
+ $('locationMaps').href=has&&validMapsUrl(maps)&&maps?maps:'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(partyLocation?.address||'');
+ const photo=$('locationPhoto');
+ if(has&&partyLocation?.photo_path){photo.src=db.storage.from(locationImageBucket).getPublicUrl(partyLocation.photo_path).data.publicUrl;photo.hidden=false;photo.style.display='block'}else{photo.hidden=true;photo.style.display='none';photo.removeAttribute('src')}
+ $('locationEdit').hidden=!has||!admin();$('locationDelete').hidden=!has||!admin();$('locationForm').hidden=has;
+ if(!has){$('locationAddress').value='';$('locationMapsUrl').value='';$('locationPhotoFile').value='';clearLocationPreview()}
 }
-$('locationForm').addEventListener('submit',async e=>{
- e.preventDefault();if(!db||!user)return;
- const address=$('locationAddress').value.trim();if(!address)return notify('Bitte eine Adresse eingeben.',true);
- const result=partyLocation?await db.from('party_location').update({address}).eq('id',1):await db.from('party_location').insert({id:1,address,created_by:user.id});
- if(result.error){fail(result.error);return}notify('Party-Adresse gespeichert.');await refresh();
+$('locationPhotoFile').addEventListener('change',()=>{
+ clearLocationPreview();const file=$('locationPhotoFile').files[0];if(!file)return;
+ if(file.size>3145728||!['image/jpeg','image/png','image/webp'].includes(file.type)){notify('Bitte JPG, PNG oder WebP bis 3 MB auswählen.',true);$('locationPhotoFile').value='';return}
+ locationPreviewUrl=URL.createObjectURL(file);$('locationPhotoPreview').src=locationPreviewUrl;$('locationPhotoPreview').hidden=false;
 });
-$('locationEdit').addEventListener('click',()=>{if(!admin())return;$('locationAddress').value=partyLocation?.address||'';$('locationForm').hidden=false;$('locationAddress').focus()});
-$('locationCancel').addEventListener('click',()=>{if(partyLocation)$('locationForm').hidden=true;else $('locationAddress').value=''});
-$('locationDelete').addEventListener('click',async()=>{if(!admin()||!confirm('Party-Adresse wirklich löschen?'))return;const {error}=await db.from('party_location').delete().eq('id',1);if(error)fail(error);else{notify('Party-Adresse gelöscht.');refresh()}});
+$('locationForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!db||!user||partyLocation&&!admin())return;
+ const address=$('locationAddress').value.trim(),maps_url=$('locationMapsUrl').value.trim();
+ if(!address)return notify('Bitte eine Adresse eingeben.',true);
+ if(!validMapsUrl(maps_url))return notify('Bitte einen gültigen HTTPS-Link von Google Maps eingeben.',true);
+ const file=$('locationPhotoFile').files[0];let photo_path=partyLocation?.photo_path||null;
+ if(file){
+  if(file.size>3145728||!['image/jpeg','image/png','image/webp'].includes(file.type))return notify('Bitte JPG, PNG oder WebP bis 3 MB auswählen.',true);
+  const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type];
+  photo_path=`location/${crypto.randomUUID()}.${ext}`;
+  const {error}=await db.storage.from(locationImageBucket).upload(photo_path,file,{contentType:file.type,upsert:false});if(error)return fail(error);
+ }
+ const payload={address,maps_url:maps_url||null,photo_path};
+ const result=partyLocation?await db.from('party_location').update(payload).eq('id',1):await db.from('party_location').insert({id:1,...payload,created_by:user.id});
+ if(result.error)return fail(result.error);
+ $('locationPhotoFile').value='';clearLocationPreview();notify('Party-Adresse und Location-Daten gespeichert.');refresh();
+});
+$('locationEdit').addEventListener('click',()=>{if(!admin())return;$('locationAddress').value=partyLocation?.address||'';$('locationMapsUrl').value=partyLocation?.maps_url||'';$('locationPhotoFile').value='';clearLocationPreview();$('locationForm').hidden=false;$('locationAddress').focus()});
+$('locationCancel').addEventListener('click',()=>{clearLocationPreview();$('locationPhotoFile').value='';if(partyLocation)$('locationForm').hidden=true;else{$('locationAddress').value='';$('locationMapsUrl').value=''}});
+$('locationDelete').addEventListener('click',async()=>{if(!admin()||!confirm('Party-Adresse samt Location-Foto und Maps-Link wirklich löschen?'))return;const {error}=await db.from('party_location').delete().eq('id',1);if(error)fail(error);else{notify('Party-Adresse gelöscht.');refresh()}});
