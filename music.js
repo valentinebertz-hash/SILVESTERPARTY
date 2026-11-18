@@ -2,13 +2,47 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from './config.js';
 const $=id=>document.getElementById(id);
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let user=null,channel=null,loading=false;
+let user=null,channel=null,loading=false,adminMusic=false,seenMusicIds=new Set(),pendingMusic=new Map();
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const message=(text,error=false)=>{const el=$('musicNotice');el.textContent=text;el.hidden=false;el.style.color=error?'#a12e32':''};
 function trackId(url){try{const u=new URL(url);if(u.protocol!=='https:'||!['open.spotify.com','play.spotify.com'].includes(u.hostname))return null;const m=u.pathname.match(/^\/(?:intl-[a-z]{2}\/)?track\/([a-zA-Z0-9]{22})\/?$/);return m?.[1]||null}catch{return null}}
+// Admin-Benachrichtigung auf dem Startbildschirm. Nur neue Titel, keine Stimmen.
+const seenKey=uid=>'silvester-music-seen-v1-'+uid;
+function updateMusicAlert(){
+ const panel=$('musicAdminAlert');if(!panel)return;
+ if(!adminMusic||!pendingMusic.size){panel.hidden=true;return;}
+ const names=[...pendingMusic.values()].slice(-3).map(s=>s.title+' – '+s.artist);
+ $('musicAdminAlertText').textContent=`${pendingMusic.size} ${pendingMusic.size===1?'neuer Musikwunsch':'neue Musikwünsche'}: ${names.join(' · ')}${pendingMusic.size>3?' …':''}`;
+ panel.hidden=false;
+}
+function checkNewMusic(songs){
+ const key=seenKey(user.id),stored=localStorage.getItem(key);
+ const ids=new Set(songs.map(s=>s.id));
+ if(stored===null){ // Beim ersten Öffnen alte Wünsche nicht als neu melden.
+  seenMusicIds=ids;localStorage.setItem(key,JSON.stringify([...ids]));return;
+ }
+ for(const s of songs)if(!seenMusicIds.has(s.id)&&s.created_by!==user.id)pendingMusic.set(s.id,s);
+ updateMusicAlert();
+}
+function acknowledgeMusic(){
+ if(!user||!adminMusic)return;
+ for(const id of pendingMusic.keys())seenMusicIds.add(id);
+ pendingMusic.clear();localStorage.setItem(seenKey(user.id),JSON.stringify([...seenMusicIds]));updateMusicAlert();
+}
+$('musicAdminDismiss')?.addEventListener('click',acknowledgeMusic);
+$('musicAdminView')?.addEventListener('click',acknowledgeMusic);
+async function setAdminMusic(){
+ adminMusic=false;pendingMusic.clear();updateMusicAlert();
+ if(!user)return;
+ const {data,error}=await db.from('profiles').select('role').eq('id',user.id).single();
+ if(error)throw error;
+ adminMusic=data?.role==='admin';
+ if(adminMusic){try{const stored=JSON.parse(localStorage.getItem(seenKey(user.id))||'null');seenMusicIds=new Set(Array.isArray(stored)?stored:[])}catch{seenMusicIds=new Set()}}
+}
 async function refresh(){if(!user||loading)return;loading=true;try{
  const [{data:songs,error:e1},{data:votes,error:e2}]=await Promise.all([db.from('music_wishes').select('id,title,artist,spotify_track_id,created_by,created_at').order('created_at',{ascending:true}),db.from('music_votes').select('song_id,user_id')]);
  if(e1||e2)throw e1||e2;
+ if(adminMusic)checkNewMusic(songs);
  const totals=new Map(),mine=new Set();for(const v of votes){totals.set(v.song_id,(totals.get(v.song_id)||0)+1);if(v.user_id===user.id)mine.add(v.song_id)}
  songs.sort((a,b)=>(totals.get(b.id)||0)-(totals.get(a.id)||0)||new Date(a.created_at)-new Date(b.created_at));
  $('musicList').innerHTML=songs.length?songs.map((s,i)=>{const count=totals.get(s.id)||0,liked=mine.has(s.id);return `<article class="music-song"><span class="music-rank">${i+1}.</span><div class="music-song-main"><strong>${escapeHtml(s.title)}</strong><div class="muted small">${escapeHtml(s.artist)}</div><a href="https://open.spotify.com/track/${s.spotify_track_id}" target="_blank" rel="noopener noreferrer">♫ Auf Spotify öffnen</a></div><div class="music-vote"><button type="button" class="btn ${liked?'secondary':''}" data-music-vote="${s.id}" aria-pressed="${liked}">${liked?'♥ Stimme zurücknehmen':'♡ Abstimmen'}</button><span>${count} ${count===1?'Stimme':'Stimmen'}</span>${s.created_by===user.id?`<button type="button" class="music-delete" data-music-delete="${s.id}" title="Eigenen Wunsch löschen">×</button>`:''}</div></article>`}).join(''):'<p class="muted">Noch keine Musikwünsche. Sei die erste Person!</p>';
@@ -22,7 +56,8 @@ async function start(session){
  $('musicForm').hidden=!user;
  $('musicLoginHint').hidden=!!user;
  if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}
- if(!user){$('musicList').innerHTML='';return;}
+ if(!user){adminMusic=false;pendingMusic.clear();updateMusicAlert();$('musicList').innerHTML='';return;}
+ if(changed)await setAdminMusic();
  await refresh();
  // Alle 8 Sekunden aktualisieren; nach jedem Login wird der Timer ersetzt.
  refreshTimer=setInterval(()=>{if(user&&!document.hidden)refresh()},8000);
