@@ -65,6 +65,34 @@ async function start(session){
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)refresh()});
 $('musicForm').addEventListener('submit',async e=>{e.preventDefault();if(!user)return;const url=$('musicUrl').value.trim(),id=trackId(url),title=$('musicTitle').value.trim(),artist=$('musicArtist').value.trim();if(!id)return message('Bitte einen gültigen Spotify-Titellink verwenden (open.spotify.com/track/…).',true);if(!title||!artist)return message('Bitte Songtitel und Interpret eingeben.',true);const button=$('musicSubmit');button.disabled=true;try{const {error}=await db.from('music_wishes').insert({title,artist,spotify_track_id:id,created_by:user.id});if(error)throw error;$('musicForm').reset();message('Musikwunsch hinzugefügt!');await refresh()}catch(err){message(err.code==='23505'?'Dieses Lied steht bereits in der Rangliste. Stimme einfach dafür ab.':err.message,true)}finally{button.disabled=false}});
 $('musicList').addEventListener('click',async e=>{const vote=e.target.closest('[data-music-vote]'),del=e.target.closest('[data-music-delete]');if(!user||(!vote&&!del))return;const id=vote?.dataset.musicVote||del.dataset.musicDelete;try{if(vote){vote.disabled=true;const {data,error}=await db.from('music_votes').select('song_id').eq('song_id',id).eq('user_id',user.id).maybeSingle();if(error)throw error;const result=data?await db.from('music_votes').delete().eq('song_id',id).eq('user_id',user.id):await db.from('music_votes').insert({song_id:id,user_id:user.id});if(result.error)throw result.error}else{if(!confirm('Deinen Musikwunsch löschen? Alle Stimmen dafür werden ebenfalls gelöscht.'))return;const {error}=await db.from('music_wishes').delete().eq('id',id);if(error)throw error}await refresh()}catch(err){message(err.message,true);await refresh()}});
-// Spotify-oEmbed liefert ggf. Titelinformationen; manuelle Eingabe bleibt immer möglich.
-$('musicUrl').addEventListener('change',async()=>{const id=trackId($('musicUrl').value.trim());if(!id)return;try{const r=await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent('https://open.spotify.com/track/'+id));if(!r.ok)return;const data=await r.json();if(data.title&&!$('musicTitle').value){const parts=data.title.split(' - song and lyrics by ');$('musicTitle').value=parts[0]||'';if(parts[1]&&!$('musicArtist').value)$('musicArtist').value=parts[1]}}catch{/* Manuelle Eingabe bleibt möglich */}});
+// Spotify-oEmbed liefert nicht immer den Interpreten. Verschiedene Titel-Formate auswerten.
+function parseSpotifyMetadata(data){
+ const raw=String(data?.title||'').trim();
+ const author=String(data?.author_name||'').trim();
+ const patterns=[
+  /^(.*?)\s+-\s+song and lyrics by\s+(.+)$/i,
+  /^(.*?)\s+-\s+Songtext von\s+(.+)$/i,
+  /^(.*?)\s+by\s+(.+)$/i,
+  /^(.*?)\s+von\s+(.+)$/i,
+  /^(.*?)\s+[–—]\s+(.+)$/
+ ];
+ for(const pattern of patterns){const m=raw.match(pattern);if(m)return {title:m[1].trim(),artist:m[2].trim()};}
+ const validAuthor=author&&!/^(spotify|spotify ab|spotify music)$/i.test(author);
+ return {title:raw,artist:validAuthor?author:''};
+}
+let musicMetadataRequest=0;
+$('musicUrl').addEventListener('change',async()=>{
+ const id=trackId($('musicUrl').value.trim());if(!id)return;
+ const request=++musicMetadataRequest;
+ try{
+  const r=await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent('https://open.spotify.com/track/'+id));
+  if(!r.ok)return;
+  const data=await r.json();
+  if(request!==musicMetadataRequest||trackId($('musicUrl').value.trim())!==id)return;
+  const meta=parseSpotifyMetadata(data);
+  if(meta.title&&!$('musicTitle').value)$('musicTitle').value=meta.title;
+  if(meta.artist&&!$('musicArtist').value)$('musicArtist').value=meta.artist;
+  if(!meta.artist&&!$('musicArtist').value)message('Songtitel übernommen. Spotify liefert den Interpreten für diesen Link leider nicht mit – bitte ergänze ihn kurz manuell.');
+ }catch{message('Spotify-Titeldaten konnten nicht vollständig geladen werden. Bitte Titel und Interpret manuell ergänzen.');}
+});
 db.auth.getSession().then(({data,error})=>{if(error)throw error;return start(data.session)}).catch(e=>message(e.message,true));db.auth.onAuthStateChange((event,session)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event))setTimeout(()=>start(session).catch(e=>message(e.message,true)),0)});
