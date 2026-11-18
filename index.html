@@ -1,9 +1,48 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#14372d"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=9"><title>Silvesterparty – Wer bringt was?</title><style id="silvester-magic-style">
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173d37"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=9"><title>Silvesterparty – Wer bringt was?</title><style id="silvester-magic-style">
 #silvester-snow{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout paint}
 #silvester-snow .snowflake{position:absolute;left:0;top:0;width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff 0%,#f9fdff 30%,#d8e7f3 75%,rgba(210,226,241,.55) 100%);box-shadow:0 0 6px 1px rgba(244,250,255,.55);opacity:0;animation:snow-swirl var(--duration) cubic-bezier(.25,.15,.7,.9) var(--delay) both;will-change:transform,opacity}
 #silvester-snow .snowflake.tiny{box-shadow:0 0 3px rgba(255,255,255,.7)}
 @keyframes snow-swirl{0%{opacity:0;transform:translate3d(var(--x0),var(--y0),0) scale(.7)}12%{opacity:var(--alpha)}45%{opacity:var(--alpha);transform:translate3d(var(--x1),var(--y1),0) scale(1)}80%{opacity:calc(var(--alpha)*.85)}100%{opacity:0;transform:translate3d(var(--x2),var(--y2),0) scale(.8)}}
 @media(prefers-reduced-motion:reduce){#silvester-snow{display:none!important}}
+</style><style id="silvester-winter-theme">
+/* Winterliche, bewusst dezente Gestaltung – Ergänzung zu style.css */
+:root{color-scheme:light;--winter-forest:#173d37;--winter-pine:#24544a;--winter-gold:#bd9755;--winter-ink:#233b3a;--winter-cream:#fcfaf5}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(ellipse at 10% 0%,rgba(223,235,240,.82),transparent 45%),radial-gradient(ellipse at 95% 35%,rgba(229,237,230,.65),transparent 42%),linear-gradient(180deg,#f5f8f7 0%,#fbfaf6 54%,#f1f5f4 100%);color:var(--winter-ink)}
+.top{background:linear-gradient(110deg,#12332e,#205044)!important;border-bottom:1px solid rgba(220,197,144,.45);box-shadow:0 5px 22px rgba(12,42,37,.13)}
+.top,.top a,.top .brand,.top .brand-text,.top #yearTop{color:#fff9ea!important}
+.brand-star{color:#e4c58b!important;text-shadow:0 0 12px rgba(240,210,148,.55)}
+.top .ghost{color:#fff9ea!important;border-color:rgba(255,255,255,.35)!important}
+.hero{position:relative;overflow:hidden;border:1px solid rgba(189,151,85,.25);box-shadow:0 15px 42px rgba(24,61,55,.13)}
+.hero::after{content:'❄  ✧  ❄';position:absolute;top:16px;right:24px;z-index:1;color:rgba(255,255,255,.8);font-size:clamp(16px,2.4vw,27px);letter-spacing:13px;text-shadow:0 1px 12px rgba(14,52,48,.3);pointer-events:none}
+.heroShade{position:relative;z-index:2;background:linear-gradient(95deg,rgba(14,45,41,.83),rgba(20,64,55,.51) 63%,rgba(27,64,56,.20))!important;color:#fffaf0!important}
+.heroShade h1,.heroShade p,.heroShade .eyebrow{color:#fffaf0!important}
+.heroShade .eyebrow{letter-spacing:.08em}
+.panel,.guest,.stat,dialog{background:rgba(255,255,252,.94)!important;border:1px solid #dce6e3!important;box-shadow:0 7px 24px rgba(32,66,61,.055)}
+.panel{position:relative}
+.panel h2,.panel h3,.sectionHead h2{color:#21473e}
+.panel h2::before{content:'✧';color:var(--winter-gold);font-size:.75em;margin-right:.42em;vertical-align:8%}
+.btn,button.btn{background:#245549;border-color:#245549;color:#fff!important;box-shadow:0 3px 10px rgba(23,61,55,.1)}
+.btn:hover,button.btn:hover{background:#1a4339;border-color:#1a4339}
+.btn.secondary,button.btn.secondary{background:#f5f7f4!important;border-color:#cddcd6!important;color:#234a41!important}
+.btn.secondary:hover,button.btn.secondary:hover{background:#e9f0eb!important}
+.btn.danger,button.btn.danger{background:#a94343!important;border-color:#a94343!important;color:white!important}
+.tabs{background:rgba(239,245,241,.93)!important;border:1px solid #dce6df!important;border-radius:14px}
+.tabs a{color:#275348!important}
+.tabs a:hover{background:#e2eee7!important}
+.stat{border-top:3px solid #c9aa71!important}
+.stat strong{color:#205046!important}
+.tag{background:#eaf1ec!important;color:#245549!important;border:1px solid #d5e3da!important}
+input,textarea,select{border-color:#cbdad5!important;background:#fffefa!important;color:#233b3a!important}
+input:focus,textarea:focus,select:focus{outline-color:#b99a63!important;border-color:#b99a63!important}
+.tableWrap{border-radius:12px;overflow:auto}
+thead{background:#e9f1ed!important;color:#204b41!important}
+tr:nth-child(even){background:rgba(242,247,243,.5)}
+.party-footer{background:linear-gradient(110deg,#163a33,#27564b)!important;color:#fff9eb!important;border-top:2px solid #c5a76c}
+.party-footer *{color:#fff9eb!important}
+#locationPhoto{border:3px solid #f6f1e5;box-shadow:0 8px 22px rgba(26,63,56,.13)}
+@media(max-width:650px){.hero::after{right:8px;top:9px;letter-spacing:5px;font-size:15px}.panel h2::before{margin-right:.2em}.heroShade{background:linear-gradient(95deg,rgba(14,45,41,.85),rgba(20,64,55,.55))!important}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style></head><body>
 <header class="top"><a href="#" class="brand"><span class="brand-star" aria-hidden="true">✦</span><span class="brand-text">SILVESTERPARTY</span></a><label class="language-switch"><span id="languageLabel">Sprache</span><select id="languageSelect" aria-label="Sprache / Язык / Language"><option value="de">DE</option><option value="ru">RU</option><option value="en">EN</option></select></label><span id="yearTop">2026 / 2027</span><button id="logout" class="ghost" hidden>Abmelden</button></header>
 <main><section class="hero"><div class="heroShade"><div id="zodiac" class="zodiac">🐎</div><p class="eyebrow">Gemeinsam planen · Gemeinsam feiern</p><h1>Wer bringt was?</h1><p id="partySubtitle">Unsere Silvesterparty</p><div class="heroActions"><a href="#liste" class="btn">Zur Mitbringliste</a><a href="#gaeste" class="btn secondary">Gäste ansehen</a></div></div></section>
