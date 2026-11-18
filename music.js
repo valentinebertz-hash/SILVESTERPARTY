@@ -13,7 +13,31 @@ async function refresh(){if(!user||loading)return;loading=true;try{
  songs.sort((a,b)=>(totals.get(b.id)||0)-(totals.get(a.id)||0)||new Date(a.created_at)-new Date(b.created_at));
  $('musicList').innerHTML=songs.length?songs.map((s,i)=>{const count=totals.get(s.id)||0,liked=mine.has(s.id);return `<article class="music-song"><span class="music-rank">${i+1}.</span><div class="music-song-main"><strong>${escapeHtml(s.title)}</strong><div class="muted small">${escapeHtml(s.artist)}</div><a href="https://open.spotify.com/track/${s.spotify_track_id}" target="_blank" rel="noopener noreferrer">♫ Auf Spotify öffnen</a></div><div class="music-vote"><button type="button" class="btn ${liked?'secondary':''}" data-music-vote="${s.id}" aria-pressed="${liked}">${liked?'♥ Stimme zurücknehmen':'♡ Abstimmen'}</button><span>${count} ${count===1?'Stimme':'Stimmen'}</span>${s.created_by===user.id?`<button type="button" class="music-delete" data-music-delete="${s.id}" title="Eigenen Wunsch löschen">×</button>`:''}</div></article>`}).join(''):'<p class="muted">Noch keine Musikwünsche. Sei die erste Person!</p>';
  }catch(e){message('Musikwünsche konnten nicht geladen werden: '+e.message,true)}finally{loading=false}}
-async function start(session){user=session?.user||null;$('musicForm').hidden=!user;$('musicLoginHint').hidden=!!user;if(channel){await db.removeChannel(channel);channel=null}if(user){await refresh();channel=db.channel('music-live').on('postgres_changes',{event:'*',schema:'public',table:'music_wishes'},()=>refresh()).on('postgres_changes',{event:'*',schema:'public',table:'music_votes'},()=>refresh()).subscribe()}}
+// Auth-Ereignisse können beim Laden mehrfach eintreffen. Ein Kanal wird nur einmal
+// erstellt und sämtliche Listener werden vor subscribe() registriert.
+let sessionGeneration=0;
+async function start(session){
+ const nextUser=session?.user||null;
+ const nextId=nextUser?.id||null;
+ const previousId=user?.id||null;
+ user=nextUser;
+ $('musicForm').hidden=!user;
+ $('musicLoginHint').hidden=!!user;
+ if(nextId===previousId&&channel){if(user)await refresh();return}
+ const generation=++sessionGeneration;
+ const oldChannel=channel;
+ channel=null;
+ if(oldChannel)await db.removeChannel(oldChannel);
+ if(generation!==sessionGeneration)return;
+ if(!user){$('musicList').innerHTML='';return}
+ await refresh();
+ if(generation!==sessionGeneration)return;
+ const nextChannel=db.channel('music-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'music_wishes'},()=>refresh())
+  .on('postgres_changes',{event:'*',schema:'public',table:'music_votes'},()=>refresh());
+ channel=nextChannel;
+ nextChannel.subscribe();
+}
 $('musicForm').addEventListener('submit',async e=>{e.preventDefault();if(!user)return;const url=$('musicUrl').value.trim(),id=trackId(url),title=$('musicTitle').value.trim(),artist=$('musicArtist').value.trim();if(!id)return message('Bitte einen gültigen Spotify-Titellink verwenden (open.spotify.com/track/…).',true);if(!title||!artist)return message('Bitte Songtitel und Interpret eingeben.',true);const button=$('musicSubmit');button.disabled=true;try{const {error}=await db.from('music_wishes').insert({title,artist,spotify_track_id:id,created_by:user.id});if(error)throw error;$('musicForm').reset();message('Musikwunsch hinzugefügt!');await refresh()}catch(err){message(err.code==='23505'?'Dieses Lied steht bereits in der Rangliste. Stimme einfach dafür ab.':err.message,true)}finally{button.disabled=false}});
 $('musicList').addEventListener('click',async e=>{const vote=e.target.closest('[data-music-vote]'),del=e.target.closest('[data-music-delete]');if(!user||(!vote&&!del))return;const id=vote?.dataset.musicVote||del.dataset.musicDelete;try{if(vote){vote.disabled=true;const {data,error}=await db.from('music_votes').select('song_id').eq('song_id',id).eq('user_id',user.id).maybeSingle();if(error)throw error;const result=data?await db.from('music_votes').delete().eq('song_id',id).eq('user_id',user.id):await db.from('music_votes').insert({song_id:id,user_id:user.id});if(result.error)throw result.error}else{if(!confirm('Deinen Musikwunsch löschen? Alle Stimmen dafür werden ebenfalls gelöscht.'))return;const {error}=await db.from('music_wishes').delete().eq('id',id);if(error)throw error}await refresh()}catch(err){message(err.message,true);await refresh()}});
 // Spotify-oEmbed liefert ggf. Titelinformationen; manuelle Eingabe bleibt immer möglich.
