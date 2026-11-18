@@ -1,6 +1,6 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#14372d"><meta name="description" content="Silvesterparty gemeinsam planen: Gäste, Begleitpersonen und Mitbringliste."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css?v=9"><title>Silvesterparty – Wer bringt was?</title><style id="silvester-magic-style">
 #silvester-magic{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;contain:layout paint;}
-#silvester-magic .magic-spark{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:var(--tone);box-shadow:0 0 12px 3px var(--glow);opacity:0;animation:magic-drift var(--duration) ease-out var(--delay) both;will-change:transform,opacity;}
+#silvester-magic .magic-spark{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:var(--tone);box-shadow:0 0 16px 4px var(--glow);opacity:0;animation:magic-drift var(--duration) ease-out var(--delay) both;will-change:transform,opacity;}
 #silvester-magic .magic-star{border-radius:1px;transform:rotate(45deg);}
 @keyframes magic-drift{0%{opacity:0;transform:translate3d(-22px,24px,0) scale(.3)}18%{opacity:var(--opacity)}65%{opacity:var(--opacity)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.15)}}
 @media(prefers-reduced-motion:reduce){#silvester-magic{display:none!important}}
@@ -54,11 +54,11 @@ setTimeout(function(){var b=document.getElementById('loginBtn'),n=document.getEl
     const now=Date.now();if(now-lastPlayed<1800)return;lastPlayed=now;
     if(activeLayer)activeLayer.remove();if(cleanupTimer)clearTimeout(cleanupTimer);
     const layer=document.createElement('div');layer.id='silvester-magic';layer.setAttribute('aria-hidden','true');
-    const colors=[['#f5db9b','rgba(255,214,130,.35)'],['#e6edf5','rgba(214,231,255,.3)'],['#fff8e7','rgba(255,244,208,.3)']];
+    const colors=[['#f6cf65','rgba(255,201,76,.48)'],['#dce4ef','rgba(222,234,248,.46)']];
     const fragment=document.createDocumentFragment();
     for(let i=0;i<90;i++){
       const dot=document.createElement('i');const tone=colors[Math.floor(Math.random()*colors.length)];
-      const size=(2.5+Math.random()*4.5).toFixed(1)+'px';
+      const size=((2.5+Math.random()*4.5)*3).toFixed(1)+'px';
       dot.className='magic-spark'+(i%7===0?' magic-star':'');
       dot.style.cssText=`--x:${(Math.random()*100).toFixed(2)}%;--y:${(15+Math.random()*75).toFixed(2)}%;--size:${size};--tone:${tone[0]};--glow:${tone[1]};--opacity:${(.55+Math.random()*.35).toFixed(2)};--delay:${(Math.random()*1.1).toFixed(2)}s;--duration:${(2.6+Math.random()*1.2).toFixed(2)}s;--dx:${(45+Math.random()*100).toFixed(0)}px;--dy:${(-80-Math.random()*160).toFixed(0)}px;`;
       fragment.appendChild(dot);
