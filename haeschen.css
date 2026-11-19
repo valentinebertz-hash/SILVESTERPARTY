@@ -1,7 +1,8 @@
-/* Kleine weiße Hasen, nur auf dem unteren rechten Teil des Hoffotos. */
+/* Kleine plastische Schneehasen: Volumen durch radiale Farbverläufe, nicht durch 3D-Rotation. */
 .bunny-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
-.bunny{position:absolute;width:var(--bunny-size,13px);height:calc(var(--bunny-size,13px) * 1.28);left:0;top:0;pointer-events:none;will-change:transform;filter:drop-shadow(0 1px 1px rgba(16,53,79,.48))}
-.bunny svg{display:block;width:100%;height:100%;overflow:visible}
-.bunny .bunny-body{transform-origin:50% 88%;animation:bunny-bounce .49s ease-in-out infinite alternate}
-@keyframes bunny-bounce{0%{transform:translateY(0) scaleY(.96)}100%{transform:translateY(-24%) scaleY(1.04)}}
-@media(prefers-reduced-motion:reduce){.bunny .bunny-body{animation:none}}
+.bunny{position:absolute;width:var(--bunny-size,13px);height:calc(var(--bunny-size,13px) * .92);left:0;top:0;pointer-events:none;will-change:transform;filter:drop-shadow(0 2px 1px rgba(16,53,79,.42))}
+.bunny svg{display:block;width:100%;height:100%;overflow:visible;transform:scaleX(-1);transition:transform .18s ease-in-out;transform-origin:center}
+.bunny[data-direction="right"] svg{transform:scaleX(1)}
+.bunny .bunny-body{transform-origin:50% 85%;animation:bunny-bounce .48s ease-in-out infinite alternate}
+@keyframes bunny-bounce{0%{transform:translateY(0) scaleY(.96)}100%{transform:translateY(-18%) scaleY(1.025)}}
+@media(prefers-reduced-motion:reduce){.bunny .bunny-body{animation:none}.bunny svg{transition:none}}
