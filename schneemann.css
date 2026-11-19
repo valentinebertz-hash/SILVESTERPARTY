@@ -1,31 +1,47 @@
 .snowman-photo-frame{position:relative;display:table;max-width:100%;isolation:isolate;margin:12px 0;overflow:hidden;border-radius:14px}
 .snowman-photo-frame #locationPhoto{margin:0!important;display:block;max-width:100%;height:auto}
 .snowman-stage{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
-.snowman-actor{position:absolute;right:0;bottom:0;width:clamp(72px,26%,124px);transform:translateX(130%);filter:drop-shadow(1px 3px 3px #1235);will-change:transform}
-.snowman-actor svg{display:block;width:100%;height:auto;overflow:visible}
-.snowman-enter{animation:snowman-arrive 2.8s ease-out forwards}
-.snowman-turn-front,.snowman-wave,.snowman-turn-away{transform:translateX(-7%)}
-.snowman-exit{animation:snowman-depart 2.3s ease-in forwards}
-@keyframes snowman-arrive{from{transform:translateX(130%)}to{transform:translateX(-7%)}}
-@keyframes snowman-depart{from{transform:translateX(-7%)}to{transform:translateX(135%)}}
-.snowman-face-front{opacity:0}
-.snowman-face-profile{opacity:1}
-.snowman-turn-front .snowman-face-front,.snowman-wave .snowman-face-front{opacity:1}
-.snowman-turn-front .snowman-face-profile,.snowman-wave .snowman-face-profile{opacity:0}
-.snowman-enter .snowman-whole,.snowman-exit .snowman-whole{animation:snowman-walk-bob .38s ease-in-out infinite alternate;transform-origin:76px 175px}
-.snowman-enter .snowman-feet,.snowman-exit .snowman-feet{animation:snowman-feet-step .3s ease-in-out infinite alternate;transform-origin:75px 178px}
-.snowman-wave .snowman-arm-right{animation:snowman-friendly-wave .4s ease-in-out infinite alternate;transform-origin:104px 111px}
-.snowman-wave .snowman-whole{animation:snowman-happy-bob .7s ease-in-out infinite alternate;transform-origin:76px 164px}
-.snowman-head-group{transform-origin:76px 81px}
+.snowman-actor{position:absolute;width:clamp(60px,23%,115px);height:auto;bottom:1%;right:0;left:auto;transform:translateX(140%);filter:drop-shadow(1px 3px 3px #1235);will-change:transform}
+.snowman-actor svg{display:block;width:100%;height:auto}
+.snowman-figure{transform-origin:50% 65%;transform:perspective(380px) rotateY(-66deg);will-change:transform;backface-visibility:visible}
+.snowman-enter{animation:snow-arrive-right 2.9s ease-out forwards}
+.snowman-turn-front,.snowman-wave,.snowman-turn-right{transform:translateX(-8%)}
+.snowman-turn-front .snowman-figure{animation:snow-face-audience .7s ease-in-out forwards}
+.snowman-wave .snowman-figure{transform:perspective(380px) rotateY(0deg)}
+.snowman-turn-right .snowman-figure{animation:snow-face-right .75s ease-in-out forwards}
+.snowman-exit{animation:snow-leave-right 2.6s ease-in forwards}
+.snowman-exit .snowman-figure{transform:perspective(380px) rotateY(66deg)}
+@keyframes snow-arrive-right{from{transform:translateX(140%)}to{transform:translateX(-8%)}}
+@keyframes snow-leave-right{from{transform:translateX(-8%)}to{transform:translateX(140%)}}
+@keyframes snow-face-audience{from{transform:perspective(380px) rotateY(-66deg)}to{transform:perspective(380px) rotateY(0deg)}}
+@keyframes snow-face-right{from{transform:perspective(380px) rotateY(0deg)}to{transform:perspective(380px) rotateY(66deg)}}
+.snowman-enter .snowman-legs,.snowman-exit .snowman-legs{animation:snow-step .3s ease-in-out infinite alternate;transform-origin:65px 148px}
+.snowman-wave .snowman-arm-right{animation:snow-wave .33s ease-in-out infinite alternate;transform-origin:89px 109px}
+/* Kopf am unteren Halsansatz drehen, nicht um die Gesichtsmitte. */
+.snowman-head{transform-box:view-box;transform-origin:65px 93px}
+.snowman-grimace .snowman-head{animation:snow-funny-face 1.1s ease-in-out infinite alternate;transform-origin:65px 93px}
+.snowman-neck{transform-box:view-box;transform-origin:65px 100px}
+.snowman-grimace .snowman-neck{animation:snow-neck-sway 1.1s ease-in-out infinite alternate}
+.snowman-grimace .snowman-mouth{animation:snow-mouth .35s ease-in-out infinite alternate;transform-origin:65px 74px}
+.snowman-juggle .snowman-juggle{opacity:1}
+.snowman-juggle .snowman-juggle circle:nth-child(1){animation:snow-ball 1s ease-in-out infinite}
+.snowman-juggle .snowman-juggle circle:nth-child(2){animation:snow-ball 1s ease-in-out -.33s infinite}
+.snowman-juggle .snowman-juggle circle:nth-child(3){animation:snow-ball 1s ease-in-out -.66s infinite}
+.snowman-juggle{opacity:0}
 .snowman-sound-toggle{display:inline-block;border:1px solid #a5c3b7;background:#edf7f2;color:#1c5144;border-radius:8px;padding:6px 10px;margin:0 0 10px;cursor:pointer;font:inherit;font-size:.8rem}
-@keyframes snowman-walk-bob{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-3px) rotate(2deg)}}
-@keyframes snowman-feet-step{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
-@keyframes snowman-friendly-wave{from{transform:rotate(-16deg)}to{transform:rotate(25deg)}}
-@keyframes snowman-happy-bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
-.snowman-cloud-puff{animation:snow-cloud-float 2.7s ease-in-out infinite alternate;transform-origin:76px -35px}
-.snowman-flake{animation:snow-flake-fall 1.7s linear infinite}
-.snowman-flake-b{animation-delay:-.5s}
-.snowman-flake-c{animation-delay:-1s}
-@keyframes snow-cloud-float{from{transform:translateY(0)}to{transform:translateY(-2px)}}
-@keyframes snow-flake-fall{0%{opacity:0;transform:translateY(-2px)}25%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(15px)}}
-@media(prefers-reduced-motion:reduce){.snowman-enter,.snowman-exit,.snowman-whole,.snowman-feet,.snowman-arm-right,.snowman-cloud-puff,.snowman-flake{animation-duration:10s!important}}
+@keyframes snow-step{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+@keyframes snow-wave{from{transform:rotate(-25deg)}to{transform:rotate(35deg)}}
+@keyframes snow-funny-face{from{transform:rotate(-5deg) translateX(-1px)}to{transform:rotate(5deg) translateX(1px)}}
+@keyframes snow-neck-sway{from{transform:skewX(-3deg)}to{transform:skewX(3deg)}}
+@keyframes snow-mouth{from{transform:scaleY(.5)}to{transform:scaleY(1.6)}}
+@keyframes snow-ball{0%,100%{transform:translateY(0)}50%{transform:translateY(-17px)}}
+@media(prefers-reduced-motion:reduce){.snowman-enter,.snowman-exit,.snowman-wave .snowman-arm-right,.snowman-grimace .snowman-head,.snowman-grimace .snowman-mouth,.snowman-juggle circle{animation-duration:8s}}
+
+/* Kleine schwebende Schneewolke über dem Schneemann */
+.snowman-cloud-puff{animation:snow-cloud-float 2.7s ease-in-out infinite alternate;transform-origin:67px -29px}
+.snowman-flake{animation:snow-flake-fall 1.9s linear infinite;transform-box:fill-box;transform-origin:center}
+.snowman-flake-b{animation-delay:-.7s}
+.snowman-flake-c{animation-delay:-1.3s}
+@keyframes snow-cloud-float{from{transform:translateY(0) translateX(-2px)}to{transform:translateY(-3px) translateX(2px)}}
+@keyframes snow-flake-fall{0%{opacity:0;translate:0 -5px}20%{opacity:1}85%{opacity:1}100%{opacity:0;translate:2px 13px}}
+@media(prefers-reduced-motion:reduce){.snowman-cloud-puff,.snowman-flake{animation:none}}
