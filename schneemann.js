@@ -17,7 +17,13 @@
     <g class="snowman-arm snowman-arm-right"><path d="M89 109 Q108 93 113 75 M106 88 L124 84 M106 88 L108 73" fill="none" stroke="#6b4834" stroke-width="5" stroke-linecap="round"/></g>
     <!-- Soft neck connection stays behind the face and overlaps the upper snowball. -->
     <path class="snowman-neck" d="M48 74 Q47 85 45 96 Q65 108 85 96 Q83 85 82 74 Z" fill="url(#snowbody)" stroke="#dedee6" stroke-width="1"/>
-    <g class="snowman-head"><image href="./schneemann-gesicht.png" x="32" y="-1" width="66" height="101" preserveAspectRatio="none" /></g>
+    <g class="snowman-head"><image href="./schneemann-gesicht.png" x="32" y="-1" width="66" height="101" preserveAspectRatio="none" /><g class="snowman-profile-face">
+      <ellipse cx="73" cy="42" rx="18" ry="25" fill="#f5f4f8" opacity=".98"/>
+      <ellipse cx="82" cy="35" rx="6" ry="9" fill="#fff" stroke="#88929e" stroke-width="1.3"/>
+      <circle cx="84" cy="35" r="3.3" fill="#17242d"/>
+      <path d="M86 47 L120 55 L88 62 Z" fill="#f28b30" stroke="#be631d" stroke-width="1.5"/>
+      <path d="M77 66 Q88 79 101 64" fill="none" stroke="#39434d" stroke-width="3.2" stroke-linecap="round"/>
+    </g></g>
     <g class="snowman-cloud" aria-hidden="true">
       <g class="snowman-cloud-puff" fill="#f8fcff" stroke="#c8dce8" stroke-width="1.4">
         <path d="M39 -22 C29 -22 27 -31 34 -35 C37 -43 49 -44 55 -38 C61 -48 77 -46 82 -36 C92 -38 101 -31 98 -23 C96 -18 89 -16 82 -16 L46 -16 C42 -16 39 -18 39 -22 Z"/>

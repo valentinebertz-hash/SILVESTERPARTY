@@ -3,18 +3,19 @@
 .snowman-stage{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
 .snowman-actor{position:absolute;width:clamp(60px,23%,115px);height:auto;bottom:1%;right:0;left:auto;transform:translateX(140%);filter:drop-shadow(1px 3px 3px #1235);will-change:transform}
 .snowman-actor svg{display:block;width:100%;height:auto}
-.snowman-figure{transform-origin:50% 65%;transform:perspective(380px) rotateY(-66deg);will-change:transform;backface-visibility:visible}
+.snowman-figure{transform-origin:50% 78%;transform:rotate(0deg)}
 .snowman-enter{animation:snow-arrive-right 2.9s ease-out forwards}
 .snowman-turn-front,.snowman-wave,.snowman-turn-right{transform:translateX(-8%)}
-.snowman-turn-front .snowman-figure{animation:snow-face-audience .7s ease-in-out forwards}
-.snowman-wave .snowman-figure{transform:perspective(380px) rotateY(0deg)}
-.snowman-turn-right .snowman-figure{animation:snow-face-right .75s ease-in-out forwards}
 .snowman-exit{animation:snow-leave-right 2.6s ease-in forwards}
-.snowman-exit .snowman-figure{transform:perspective(380px) rotateY(66deg)}
 @keyframes snow-arrive-right{from{transform:translateX(140%)}to{transform:translateX(-8%)}}
 @keyframes snow-leave-right{from{transform:translateX(-8%)}to{transform:translateX(140%)}}
-@keyframes snow-face-audience{from{transform:perspective(380px) rotateY(-66deg)}to{transform:perspective(380px) rotateY(0deg)}}
-@keyframes snow-face-right{from{transform:perspective(380px) rotateY(0deg)}to{transform:perspective(380px) rotateY(66deg)}}
+.snowman-profile-face{opacity:1;transition:opacity .35s ease}
+.snowman-turn-front .snowman-profile-face,.snowman-wave .snowman-profile-face{opacity:0}
+.snowman-turn-right .snowman-profile-face,.snowman-exit .snowman-profile-face,.snowman-enter .snowman-profile-face{opacity:1}
+.snowman-turn-front .snowman-figure{animation:snow-turn-in .65s ease-in-out}
+.snowman-turn-right .snowman-figure{animation:snow-turn-out .65s ease-in-out}
+@keyframes snow-turn-in{0%{transform:rotate(4deg)}50%{transform:rotate(-3deg)}100%{transform:rotate(0)}}
+@keyframes snow-turn-out{0%{transform:rotate(0)}50%{transform:rotate(3deg)}100%{transform:rotate(0)}}
 .snowman-enter .snowman-legs,.snowman-exit .snowman-legs{animation:snow-step .3s ease-in-out infinite alternate;transform-origin:65px 148px}
 .snowman-wave .snowman-arm-right{animation:snow-wave .33s ease-in-out infinite alternate;transform-origin:89px 109px}
 /* Kopf am unteren Halsansatz drehen, nicht um die Gesichtsmitte. */
