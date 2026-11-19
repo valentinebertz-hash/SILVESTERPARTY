@@ -24,3 +24,28 @@
 @keyframes snow-mouth{from{transform:scaleY(.5)}to{transform:scaleY(1.6)}}
 @keyframes snow-ball{0%,100%{transform:translateY(0)}50%{transform:translateY(-17px)}}
 @media(prefers-reduced-motion:reduce){.snowman-enter,.snowman-exit,.snowman-wave .snowman-arm-right,.snowman-grimace .snowman-head,.snowman-grimace .snowman-mouth,.snowman-juggle circle{animation-duration:8s}}
+
+/* Original-Schneemann aus dem vom Nutzer bereitgestellten Foto */
+.snowman-actor{width:clamp(68px,26%,132px);bottom:-2%;}
+.snowman-figure{position:relative;width:100%;transform-origin:50% 85%;}
+.snowman-figure img{width:100%;display:block;height:auto;user-select:none;pointer-events:none;}
+.snowman-enter .snowman-figure,.snowman-exit .snowman-figure{animation:original-snow-waddle .36s ease-in-out infinite alternate;}
+.snowman-wave .snowman-figure{animation:original-snow-bow .65s ease-in-out infinite alternate;}
+.snowman-grimace .snowman-figure{animation:original-snow-grimace .28s ease-in-out infinite alternate;}
+.snowman-juggling .snowman-figure{animation:original-snow-bow .6s ease-in-out infinite alternate;}
+.snowman-face{position:absolute;top:27%;left:30%;font-size:clamp(12px,2.6vw,23px);opacity:0;transform:rotate(-12deg);}
+.snowman-grimace .snowman-face{opacity:1;animation:original-face .45s steps(2) infinite;}
+.snowman-wave-hand{position:absolute;top:45%;right:-8%;font-size:clamp(15px,3vw,28px);opacity:0;transform-origin:bottom left;}
+.snowman-wave .snowman-wave-hand{opacity:1;animation:original-wave .35s ease-in-out infinite alternate;}
+.snowman-snowballs{position:absolute;inset:0;opacity:0;pointer-events:none;}
+.snowman-juggling .snowman-snowballs{opacity:1;}
+.snowman-snowballs i{position:absolute;top:10%;width:18%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 25%,white 10%,#e7f7ff 65%,#9fc6d9);box-shadow:0 1px 3px #4568;}
+.snowman-snowballs i:nth-child(1){left:4%;animation:original-ball .95s ease-in-out infinite;}
+.snowman-snowballs i:nth-child(2){left:40%;animation:original-ball .95s ease-in-out -.32s infinite;}
+.snowman-snowballs i:nth-child(3){right:4%;animation:original-ball .95s ease-in-out -.64s infinite;}
+@keyframes original-snow-waddle{from{transform:rotate(-7deg) translateY(0)}to{transform:rotate(7deg) translateY(-4px)}}
+@keyframes original-snow-bow{from{transform:rotate(-7deg)}to{transform:rotate(8deg)}}
+@keyframes original-snow-grimace{from{transform:skewX(-6deg) scaleY(.96)}to{transform:skewX(6deg) scaleY(1.04)}}
+@keyframes original-wave{from{transform:rotate(-25deg)}to{transform:rotate(35deg)}}
+@keyframes original-face{from{transform:rotate(-15deg) scale(.9)}to{transform:rotate(15deg) scale(1.15)}}
+@keyframes original-ball{0%,100%{transform:translateY(5px)}50%{transform:translateY(-35px)}}
