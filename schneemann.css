@@ -8,7 +8,11 @@
 .snowman-exit{animation:snow-walk-out 3.8s ease-in forwards}
 .snowman-enter .snowman-legs,.snowman-exit .snowman-legs{animation:snow-step .3s ease-in-out infinite alternate;transform-origin:65px 148px}
 .snowman-wave .snowman-arm-right{animation:snow-wave .33s ease-in-out infinite alternate;transform-origin:89px 109px}
-.snowman-grimace .snowman-head{animation:snow-funny-face .35s ease-in-out infinite alternate;transform-origin:65px 58px}
+/* Kopf am unteren Halsansatz drehen, nicht um die Gesichtsmitte. */
+.snowman-head{transform-box:view-box;transform-origin:65px 93px}
+.snowman-grimace .snowman-head{animation:snow-funny-face 1.1s ease-in-out infinite alternate;transform-origin:65px 93px}
+.snowman-neck{transform-box:view-box;transform-origin:65px 100px}
+.snowman-grimace .snowman-neck{animation:snow-neck-sway 1.1s ease-in-out infinite alternate}
 .snowman-grimace .snowman-mouth{animation:snow-mouth .35s ease-in-out infinite alternate;transform-origin:65px 74px}
 .snowman-juggle .snowman-juggle{opacity:1}
 .snowman-juggle .snowman-juggle circle:nth-child(1){animation:snow-ball 1s ease-in-out infinite}
@@ -20,7 +24,8 @@
 @keyframes snow-walk-out{0%{transform:translateX(115%) rotate(0)}100%{transform:translateX(550%) rotate(7deg)}}
 @keyframes snow-step{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
 @keyframes snow-wave{from{transform:rotate(-25deg)}to{transform:rotate(35deg)}}
-@keyframes snow-funny-face{from{transform:rotate(-11deg) scaleX(.94)}to{transform:rotate(10deg) scaleX(1.07)}}
+@keyframes snow-funny-face{from{transform:rotate(-5deg) translateX(-1px)}to{transform:rotate(5deg) translateX(1px)}}
+@keyframes snow-neck-sway{from{transform:skewX(-3deg)}to{transform:skewX(3deg)}}
 @keyframes snow-mouth{from{transform:scaleY(.5)}to{transform:scaleY(1.6)}}
 @keyframes snow-ball{0%,100%{transform:translateY(0)}50%{transform:translateY(-17px)}}
 @media(prefers-reduced-motion:reduce){.snowman-enter,.snowman-exit,.snowman-wave .snowman-arm-right,.snowman-grimace .snowman-head,.snowman-grimace .snowman-mouth,.snowman-juggle circle{animation-duration:8s}}
