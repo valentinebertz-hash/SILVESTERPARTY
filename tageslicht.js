@@ -29,11 +29,13 @@
     if (!frame) return;
     // Ortszeit des jeweiligen Browsers. 08-17 Uhr hell, 20-06 Uhr dunkel.
     const now=new Date(), h=now.getHours()+now.getMinutes()/60;
+    const mode=window.partyPreviewMode||'auto';
     let night;
     if(h>=6 && h<8) night=(8-h)/2;
     else if(h>=8 && h<17) night=0;
     else if(h>=17 && h<20) night=(h-17)/3;
     else night=1;
+    if(mode==='night')night=1;else if(mode==='day')night=0;
     frame.style.setProperty('--party-night',night.toFixed(3));
     frame.style.setProperty('--party-lights',Math.max(0,(night-.18)/.82).toFixed(3));
   }
@@ -41,4 +43,5 @@
   const observer=new MutationObserver(ensure);
   observer.observe(document.documentElement,{childList:true,subtree:true});
   setInterval(update,60000);
+  window.addEventListener('party-preview-change',update);
 })();

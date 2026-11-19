@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   // Local visitor time: fireworks continuously between 20:00 and 06:00.
-  const isNight=()=>{const h=new Date().getHours();return h>=20||h<6;};
+  const isNight=()=>{const mode=window.partyPreviewMode||'auto';if(mode==='night')return true;if(mode==='day')return false;const h=new Date().getHours();return h>=20||h<6;};
   let canvas,ctx,frame,particles=[],last=0,nextBurst=0,raf=0,w=0,h=0;
   const colors=['#9eeeff','#ffd8a6','#ffc1f0','#b9b7ff','#e5fcff','#b8ffdf','#ffe28a'];
   const rand=(a,b)=>a+Math.random()*(b-a);
@@ -65,6 +65,7 @@
     if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(frame);
     else addEventListener('resize',resize);
     document.addEventListener('visibilitychange',start);
+    window.addEventListener('party-preview-change',start);
     setInterval(start,30000);
     return true;
   }
