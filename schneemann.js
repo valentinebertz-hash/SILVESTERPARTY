@@ -1,3 +1,5 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 (() => {
   const photo = document.getElementById('locationPhoto');
   if (!photo) return;
@@ -72,4 +74,83 @@
     </div>
   </div>`;
   frame.appendChild(stage);
+  const figure = stage.querySelector('.snowman-in-yard');
+  figure.setAttribute('role', 'button');
+  figure.setAttribute('aria-label', 'Schneemann verschieben');
+  figure.setAttribute('title', 'Schneemann mit Maus oder Finger verschieben');
+  figure.tabIndex = 0;
+  // Percent coordinates refer to the figure's top-left corner, not the pointer.
+  let position = {x:20, y:35};
+  let dragging = null;
+  let client = null;
+  let currentUser = null;
+  let realtime = null;
+  let busy = false;
+  const setPosition = (x, y) => {
+    const maxX = Math.max(0, 100 - figure.offsetWidth / stage.clientWidth * 100);
+    const maxY = Math.max(0, 100 - figure.offsetHeight / stage.clientHeight * 100);
+    position = {x:Math.min(maxX,Math.max(0,x)),y:Math.min(maxY,Math.max(0,y))};
+    figure.style.left = position.x + '%';
+    figure.style.top = position.y + '%';
+    figure.style.bottom = 'auto';
+  };
+  const initial = () => {
+    // Preserve original bottom 27% placement before the database position loads.
+    const top = (stage.clientHeight - figure.offsetHeight - stage.clientHeight * .27) / stage.clientHeight * 100;
+    setPosition(20, top);
+  };
+  requestAnimationFrame(initial);
+  const pointPosition = e => {
+    const r = stage.getBoundingClientRect();
+    setPosition((e.clientX - r.left - dragging.dx)/r.width*100,
+                (e.clientY - r.top - dragging.dy)/r.height*100);
+  };
+  figure.addEventListener('pointerdown', e => {
+    if(e.button !== 0 || !currentUser) return;
+    e.preventDefault();
+    const r = figure.getBoundingClientRect();
+    dragging = {id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top};
+    figure.classList.add('dragging');
+    figure.setPointerCapture(e.pointerId);
+  });
+  figure.addEventListener('pointermove', e => {
+    if(!dragging || dragging.id !== e.pointerId) return;
+    pointPosition(e);
+  });
+  const finish = async e => {
+    if(!dragging || dragging.id !== e.pointerId) return;
+    pointPosition(e);
+    dragging = null;
+    figure.classList.remove('dragging');
+    if(!client || !currentUser) return;
+    const save = {...position};
+    const {error} = await client.from('snowman_position').update({x:save.x,y:save.y,updated_at:new Date().toISOString()}).eq('id',1);
+    if(error) console.warn('Schneemann-Position konnte nicht gespeichert werden:',error.message);
+  };
+  figure.addEventListener('pointerup', finish);
+  figure.addEventListener('pointercancel', () => {dragging=null;figure.classList.remove('dragging');});
+  async function loadPosition() {
+    if(!currentUser || !client) return;
+    const {data,error} = await client.from('snowman_position').select('x,y').eq('id',1).single();
+    if(error) {console.warn('Schneemann-Position konnte nicht geladen werden:',error.message);return;}
+    if(data && !dragging) setPosition(Number(data.x),Number(data.y));
+  }
+  async function updateAuth() {
+    const {data} = await client.auth.getUser();
+    currentUser = data?.user || null;
+    figure.classList.toggle('can-drag',!!currentUser);
+    if(currentUser) await loadPosition();
+  }
+  if(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('HIER_')) {
+    client = createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    updateAuth();
+    client.auth.onAuthStateChange(() => setTimeout(updateAuth,0));
+    realtime = client.channel('snowman-position-live')
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'snowman_position',filter:'id=eq.1'},payload => {
+        if(payload.new && !dragging) setPosition(Number(payload.new.x),Number(payload.new.y));
+      }).subscribe();
+    // Refresh on returning to the page, even if realtime was temporarily disconnected.
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadPosition();});
+  }
+  window.addEventListener('resize',()=>setPosition(position.x,position.y));
 })();
