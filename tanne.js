@@ -15,7 +15,18 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from './config.js';
   tree.title='Weihnachtstanne mit Maus oder Finger verschieben';
   tree.innerHTML='<img src="./tanne.svg?v=1" alt="Märchenhafte beleuchtete Weihnachtstanne" draggable="false">';
   frame.appendChild(tree);
-  let pos={x:67,y:18},drag=null,client=null,user=null;
+  let pos={x:67,y:18},drag=null,client=null,user=null,isMaster=false,home=null,resetTimer=null;
+  const RESET_MS=5000;
+  const applyRecord=row=>{
+    if(!row||drag)return;
+    clearTimeout(resetTimer);
+    home={x:Number(row.home_x??row.x),y:Number(row.home_y??row.y)};
+    const remaining=RESET_MS-(Date.now()-Date.parse(row.updated_at));
+    if(Number.isFinite(remaining)&&remaining>0&&remaining<=RESET_MS){
+      setPos(Number(row.x),Number(row.y));
+      resetTimer=setTimeout(()=>{if(!drag&&home)setPos(home.x,home.y)},remaining);
+    } else setPos(home.x,home.y);
+  };
   const setPos=(x,y)=>{
     const w=frame.clientWidth,h=frame.clientHeight;
     if(!w||!h)return;
@@ -38,17 +49,31 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from './config.js';
     if(drag?.id!==e.pointerId)return;
     point(e);drag=null;tree.classList.remove('dragging');
     if(!client||!user)return;
-    const {error}=await client.from('tree_position').update({x:pos.x,y:pos.y,updated_at:new Date().toISOString()}).eq('id',1);
+    const saved={...pos};
+    const result=isMaster
+      ? await client.rpc('master_set_figure_home',{figure_name:'tree',new_x:saved.x,new_y:saved.y})
+      : await client.from('tree_position').update({x:saved.x,y:saved.y,updated_at:new Date().toISOString()}).eq('id',1);
+    const {error}=result;
+    if(!error&&isMaster)home=saved;
+    if(!error&&!isMaster&&home){
+      clearTimeout(resetTimer);
+      resetTimer=setTimeout(()=>{if(!drag)setPos(home.x,home.y)},RESET_MS);
+    }
     if(error)console.warn('Tannenposition nicht gespeichert:',error.message);
   });
   const load=async()=>{
     if(!client||!user)return;
-    const {data,error}=await client.from('tree_position').select('x,y').eq('id',1).single();
+    const {data,error}=await client.from('tree_position').select('x,y,home_x,home_y,updated_at').eq('id',1).single();
     if(error){console.warn('Tannenposition nicht geladen:',error.message);return;}
-    if(data&&!drag)setPos(Number(data.x),Number(data.y));
+    if(data&&!drag)applyRecord(data);
   };
   const auth=async()=>{
     const {data}=await client.auth.getUser();user=data?.user||null;
+    isMaster=false;
+    if(user){
+      const {data:profile}=await client.from('profiles').select('role').eq('id',user.id).maybeSingle();
+      isMaster=profile?.role==='admin';
+    }
     tree.classList.toggle('can-drag',!!user);
     if(user)await load();
   };
@@ -56,7 +81,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from './config.js';
     client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     auth();client.auth.onAuthStateChange(()=>setTimeout(auth,0));
     client.channel('tree-position-live').on('postgres_changes',{event:'UPDATE',schema:'public',table:'tree_position',filter:'id=eq.1'},payload=>{
-      if(payload.new&&!drag)setPos(Number(payload.new.x),Number(payload.new.y));
+      if(payload.new&&!drag)applyRecord(payload.new);
     }).subscribe();
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
   }

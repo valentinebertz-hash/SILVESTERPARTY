@@ -86,6 +86,19 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
   let currentUser = null;
   let realtime = null;
   let busy = false;
+  let isMaster = false, home = null, resetTimer = null;
+  const RESET_MS = 5000;
+  const applyRecord = row => {
+    if (!row || dragging) return;
+    clearTimeout(resetTimer);
+    home = {x:Number(row.home_x ?? row.x),y:Number(row.home_y ?? row.y)};
+    const changed = Date.parse(row.updated_at);
+    const remaining = RESET_MS - (Date.now() - changed);
+    if (Number.isFinite(remaining) && remaining > 0 && remaining <= RESET_MS) {
+      setPosition(Number(row.x),Number(row.y));
+      resetTimer = setTimeout(() => {if(!dragging && home)setPosition(home.x,home.y)}, remaining);
+    } else setPosition(home.x,home.y);
+  };
   const setPosition = (x, y) => {
     const maxX = Math.max(0, 100 - figure.offsetWidth / stage.clientWidth * 100);
     const maxY = Math.max(0, 100 - figure.offsetHeight / stage.clientHeight * 100);
@@ -124,20 +137,33 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
     figure.classList.remove('dragging');
     if(!client || !currentUser) return;
     const save = {...position};
-    const {error} = await client.from('snowman_position').update({x:save.x,y:save.y,updated_at:new Date().toISOString()}).eq('id',1);
+    const result = isMaster
+      ? await client.rpc('master_set_figure_home',{figure_name:'snowman',new_x:save.x,new_y:save.y})
+      : await client.from('snowman_position').update({x:save.x,y:save.y,updated_at:new Date().toISOString()}).eq('id',1);
+    const {error} = result;
+    if(!error && isMaster) home = save;
+    if(!error && !isMaster && home) {
+      clearTimeout(resetTimer);
+      resetTimer=setTimeout(()=>{if(!dragging)setPosition(home.x,home.y)},RESET_MS);
+    }
     if(error) console.warn('Schneemann-Position konnte nicht gespeichert werden:',error.message);
   };
   figure.addEventListener('pointerup', finish);
   figure.addEventListener('pointercancel', () => {dragging=null;figure.classList.remove('dragging');});
   async function loadPosition() {
     if(!currentUser || !client) return;
-    const {data,error} = await client.from('snowman_position').select('x,y').eq('id',1).single();
+    const {data,error} = await client.from('snowman_position').select('x,y,home_x,home_y,updated_at').eq('id',1).single();
     if(error) {console.warn('Schneemann-Position konnte nicht geladen werden:',error.message);return;}
-    if(data && !dragging) setPosition(Number(data.x),Number(data.y));
+    if(data && !dragging) applyRecord(data);
   }
   async function updateAuth() {
     const {data} = await client.auth.getUser();
     currentUser = data?.user || null;
+    isMaster = false;
+    if(currentUser){
+      const {data:profile}=await client.from('profiles').select('role').eq('id',currentUser.id).maybeSingle();
+      isMaster = profile?.role === 'admin';
+    }
     figure.classList.toggle('can-drag',!!currentUser);
     if(currentUser) await loadPosition();
   }
@@ -147,7 +173,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
     client.auth.onAuthStateChange(() => setTimeout(updateAuth,0));
     realtime = client.channel('snowman-position-live')
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'snowman_position',filter:'id=eq.1'},payload => {
-        if(payload.new && !dragging) setPosition(Number(payload.new.x),Number(payload.new.y));
+        if(payload.new && !dragging) applyRecord(payload.new);
       }).subscribe();
     // Refresh on returning to the page, even if realtime was temporarily disconnected.
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadPosition();});
