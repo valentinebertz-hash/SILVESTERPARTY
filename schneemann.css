@@ -24,3 +24,12 @@
 @keyframes snow-mouth{from{transform:scaleY(.5)}to{transform:scaleY(1.6)}}
 @keyframes snow-ball{0%,100%{transform:translateY(0)}50%{transform:translateY(-17px)}}
 @media(prefers-reduced-motion:reduce){.snowman-enter,.snowman-exit,.snowman-wave .snowman-arm-right,.snowman-grimace .snowman-head,.snowman-grimace .snowman-mouth,.snowman-juggle circle{animation-duration:8s}}
+
+/* Kleine schwebende Schneewolke über dem Schneemann */
+.snowman-cloud-puff{animation:snow-cloud-float 2.7s ease-in-out infinite alternate;transform-origin:67px -29px}
+.snowman-flake{animation:snow-flake-fall 1.9s linear infinite;transform-box:fill-box;transform-origin:center}
+.snowman-flake-b{animation-delay:-.7s}
+.snowman-flake-c{animation-delay:-1.3s}
+@keyframes snow-cloud-float{from{transform:translateY(0) translateX(-2px)}to{transform:translateY(-3px) translateX(2px)}}
+@keyframes snow-flake-fall{0%{opacity:0;translate:0 -5px}20%{opacity:1}85%{opacity:1}100%{opacity:0;translate:2px 13px}}
+@media(prefers-reduced-motion:reduce){.snowman-cloud-puff,.snowman-flake{animation:none}}

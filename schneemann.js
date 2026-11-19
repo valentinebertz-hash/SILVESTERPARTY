@@ -8,14 +8,24 @@
   const stage = document.createElement('div');
   stage.className = 'snowman-stage';
   stage.setAttribute('aria-hidden', 'true');
-  stage.innerHTML = `<div class="snowman-actor"><svg viewBox="0 0 130 184" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs><radialGradient id="snowbody" cx="35%" cy="20%"><stop stop-color="#fff"/><stop offset=".8" stop-color="#eef9ff"/><stop offset="1" stop-color="#b7d7eb"/></radialGradient></defs>
+  stage.innerHTML = `<div class="snowman-actor"><svg viewBox="0 -49 130 233" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><radialGradient id="snowbody" cx="38%" cy="24%" r="73%"><stop stop-color="#faf9fc"/><stop offset=".52" stop-color="#f1f0f5"/><stop offset=".83" stop-color="#e5e5ec"/><stop offset="1" stop-color="#cdd0da"/></radialGradient></defs>
     <ellipse cx="66" cy="174" rx="40" ry="6" fill="#365d73" opacity=".25"/>
-    <g class="snowman-legs"><path d="M49 148 Q42 168 35 171" stroke="#f7fcff" stroke-width="15" stroke-linecap="round"/><path d="M79 148 Q84 168 93 171" stroke="#f7fcff" stroke-width="15" stroke-linecap="round"/></g>
-    <g class="snowman-body"><ellipse cx="65" cy="130" rx="39" ry="41" fill="url(#snowbody)" stroke="#d4e9f4" stroke-width="1.5"/><ellipse cx="65" cy="91" rx="28" ry="29" fill="url(#snowbody)"/><circle cx="63" cy="106" r="5.5" fill="#333c40"/><circle cx="63" cy="127" r="6.5" fill="#333c40"/><circle cx="63" cy="148" r="6.5" fill="#333c40"/></g>
+    <g class="snowman-legs"><path d="M49 148 Q42 168 35 171" stroke="#e9e8ef" stroke-width="15" stroke-linecap="round"/><path d="M79 148 Q84 168 93 171" stroke="#e9e8ef" stroke-width="15" stroke-linecap="round"/></g>
+    <g class="snowman-body"><ellipse cx="65" cy="130" rx="39" ry="41" fill="url(#snowbody)" stroke="#d5d5de" stroke-width="1.5"/><ellipse cx="65" cy="91" rx="28" ry="29" fill="url(#snowbody)"/><circle cx="63" cy="106" r="5.5" fill="#333c40"/><circle cx="63" cy="127" r="6.5" fill="#333c40"/><circle cx="63" cy="148" r="6.5" fill="#333c40"/></g>
     <g class="snowman-arm snowman-arm-left"><path d="M41 109 Q23 96 13 83 M21 94 L9 92 M21 94 L17 81" fill="none" stroke="#6b4834" stroke-width="5" stroke-linecap="round"/></g>
     <g class="snowman-arm snowman-arm-right"><path d="M89 109 Q108 93 113 75 M106 88 L124 84 M106 88 L108 73" fill="none" stroke="#6b4834" stroke-width="5" stroke-linecap="round"/></g>
     <g class="snowman-head"><image href="./schneemann-gesicht.png" x="32" y="-3" width="66" height="98" preserveAspectRatio="none" /></g>
+    <g class="snowman-cloud" aria-hidden="true">
+      <g class="snowman-cloud-puff" fill="#f8fcff" stroke="#c8dce8" stroke-width="1.4">
+        <path d="M39 -22 C29 -22 27 -31 34 -35 C37 -43 49 -44 55 -38 C61 -48 77 -46 82 -36 C92 -38 101 -31 98 -23 C96 -18 89 -16 82 -16 L46 -16 C42 -16 39 -18 39 -22 Z"/>
+      </g>
+      <g class="snowman-cloud-flakes" fill="#e8faff" stroke="#a4d7f4" stroke-width="1.1" stroke-linecap="round">
+        <g class="snowman-flake snowman-flake-a" transform="translate(45 -13)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
+        <g class="snowman-flake snowman-flake-b" transform="translate(67 -11)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
+        <g class="snowman-flake snowman-flake-c" transform="translate(87 -12)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
+      </g>
+    </g>
     <g class="snowman-juggle"><circle cx="24" cy="25" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/><circle cx="69" cy="9" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/><circle cx="112" cy="25" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/></g>
   </svg></div>`;
   frame.appendChild(stage);
