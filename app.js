@@ -273,7 +273,7 @@ function renderPartyLocation(){
  $('locationMaps').href=has&&validMapsUrl(maps)&&maps?maps:'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(partyLocation?.address||'');
  const photo=$('locationPhoto');
  if(has&&partyLocation?.photo_path){photo.src=db.storage.from(locationImageBucket).getPublicUrl(partyLocation.photo_path).data.publicUrl;photo.hidden=false;photo.style.display='block'}else{photo.hidden=true;photo.style.display='none';photo.removeAttribute('src')}
- $('locationEdit').hidden=!has||!admin();$('locationDelete').hidden=!has||!admin();$('locationForm').hidden=has;
+ $('locationEdit').hidden=!has||!admin();$('locationDelete').hidden=!has||!admin();$('locationForm').hidden=has||!admin();
  if(!has){$('locationAddress').value='';$('locationMapsUrl').value='';$('locationPhotoFile').value='';clearLocationPreview()}
 }
 $('locationPhotoFile').addEventListener('change',()=>{
@@ -282,7 +282,7 @@ $('locationPhotoFile').addEventListener('change',()=>{
  locationPreviewUrl=URL.createObjectURL(file);$('locationPhotoPreview').src=locationPreviewUrl;$('locationPhotoPreview').hidden=false;
 });
 $('locationForm').addEventListener('submit',async e=>{
- e.preventDefault();if(!db||!user||partyLocation&&!admin())return;
+ e.preventDefault();if(!db||!user||!admin())return notify('Nur der Administrator darf die Party-Adresse bearbeiten.',true);
  const address=$('locationAddress').value.trim(),maps_url=$('locationMapsUrl').value.trim();
  if(!address)return notify('Bitte eine Adresse eingeben.',true);
  if(!validMapsUrl(maps_url))return notify('Bitte einen gültigen HTTPS-Link von Google Maps eingeben.',true);
