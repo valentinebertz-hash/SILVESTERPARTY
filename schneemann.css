@@ -1,14 +1,18 @@
 .snowman-photo-frame{position:relative;display:table;max-width:100%;isolation:isolate;margin:12px 0;overflow:hidden;border-radius:14px}
 .snowman-photo-frame #locationPhoto{margin:0!important;display:block;max-width:100%;height:auto}
 .snowman-stage{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
-/* Fixed in the courtyard, not close to the viewer. Adjust left/bottom/width to reposition. */
-.snowman-in-yard{position:absolute;left:45%;bottom:27%;width:12%;min-width:30px;max-width:60px;transform-origin:50% 100%;animation:yard-wave 4.5s ease-in-out infinite;filter:drop-shadow(0 1px 1px #243f5366)}
-.snowman-original{display:block;width:100%;height:auto;/* softens the original snowy background at the silhouette edges */-webkit-mask-image:radial-gradient(ellipse 64% 61% at 50% 51%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 64% 61% at 50% 51%,#000 70%,transparent 100%)}
+.snowman-in-yard{position:absolute;left:45%;bottom:27%;width:12%;min-width:30px;max-width:60px;filter:drop-shadow(0 1px 1px #243f5366)}
+.snowman-illustration{position:relative;width:100%;background:#fff}
+.snowman-original{display:block;width:100%;height:auto}
+.snowman-lights{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.snowman-lights .light{opacity:.12;filter:drop-shadow(0 0 2px currentColor);animation:light-twinkle 1.65s ease-in-out infinite alternate}
+.snowman-lights .light-b,.snowman-lights .light-e,.snowman-lights .light-h{animation-delay:-.75s}
+.snowman-lights .light-c,.snowman-lights .light-f,.snowman-lights .light-i{animation-delay:-1.2s}
+@keyframes light-twinkle{0%,20%{opacity:0}70%,100%{opacity:.95}}
 .snowman-cloud{position:absolute;left:8%;bottom:96%;width:100%;height:30%;font-size:clamp(11px,2.5vw,20px);line-height:1;white-space:nowrap;filter:drop-shadow(0 1px 1px #2454)}
 .snowman-cloud span{display:block;text-align:center;animation:cloud-bob 2.6s ease-in-out infinite alternate}
 .snowman-cloud i{position:absolute;top:40%;font-size:.45em;color:#eafaff;font-style:normal;animation:flakes 2.2s linear infinite}
 .snowman-cloud i:nth-of-type(1){left:28%}.snowman-cloud i:nth-of-type(2){left:51%;animation-delay:-.7s}.snowman-cloud i:nth-of-type(3){left:72%;animation-delay:-1.4s}
-@keyframes yard-wave{0%,100%{transform:rotate(-2deg)}45%{transform:rotate(3deg)}70%{transform:rotate(-1deg)}}
 @keyframes cloud-bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
 @keyframes flakes{0%{opacity:0;transform:translateY(0)}30%{opacity:1}90%{opacity:.8}100%{opacity:0;transform:translateY(12px)}}
-@media(prefers-reduced-motion:reduce){.snowman-in-yard,.snowman-cloud span,.snowman-cloud i{animation:none}}
+@media(prefers-reduced-motion:reduce){.snowman-cloud span,.snowman-cloud i,.snowman-lights .light{animation:none}}
