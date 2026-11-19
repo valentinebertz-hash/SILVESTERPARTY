@@ -41,20 +41,33 @@
     <div class="snowman-illustration">
       <img class="snowman-original" src="./schneemann-lichter.png" alt="" />
       <svg class="snowman-lights" viewBox="0 0 1068 1473" aria-hidden="true" preserveAspectRatio="none">
-        <ellipse class="light light-a" cx="926" cy="628" rx="23" ry="40" fill="#ff3434"/>
-        <ellipse class="light-core light-core-a" cx="926" cy="628" rx="9.7" ry="16.0" fill="#ffffff"/>
-        <ellipse class="light light-b" cx="242" cy="802" rx="33" ry="23" fill="#39f847"/>
-        <ellipse class="light-core light-core-b" cx="242" cy="802" rx="13.9" ry="9.2" fill="#ffffff"/>
-        <ellipse class="light light-c" cx="716" cy="800" rx="24" ry="36" fill="#fff332"/>
-        <ellipse class="light-core light-core-c" cx="716" cy="800" rx="10.1" ry="14.4" fill="#ffffff"/>
-        <ellipse class="light light-d" cx="398" cy="928" rx="25" ry="37" fill="#ff4545"/>
-        <ellipse class="light-core light-core-d" cx="398" cy="928" rx="10.5" ry="14.8" fill="#ffffff"/>
-        <ellipse class="light light-e" cx="319" cy="1090" rx="23" ry="36" fill="#ffef3b"/>
-        <ellipse class="light-core light-core-e" cx="319" cy="1090" rx="9.7" ry="14.4" fill="#ffffff"/>
-        <ellipse class="light light-f" cx="453" cy="1125" rx="23" ry="38" fill="#2beeff"/>
-        <ellipse class="light-core light-core-f" cx="453" cy="1125" rx="9.7" ry="15.2" fill="#ffffff"/>
-        <ellipse class="light light-g" cx="699" cy="1123" rx="23" ry="37" fill="#ff4b48"/>
-        <ellipse class="light-core light-core-g" cx="699" cy="1123" rx="9.7" ry="14.8" fill="#ffffff"/>
+        <ellipse class="light-glow light-glow-a" cx="868" cy="545" rx="38.5" ry="64.0" fill="#ffe500"/>
+        <ellipse class="light light-a" cx="868" cy="545" rx="22" ry="40" fill="#ffe500"/>
+        <ellipse class="light-core light-core-a" cx="864" cy="536" rx="7.7" ry="14.0" fill="#fff"/>
+        <ellipse class="light-glow light-glow-b" cx="794" cy="705" rx="45.5" ry="60.8" fill="#32ff29"/>
+        <ellipse class="light light-b" cx="794" cy="705" rx="26" ry="38" fill="#32ff29"/>
+        <ellipse class="light-core light-core-b" cx="790" cy="696" rx="9.1" ry="13.3" fill="#fff"/>
+        <ellipse class="light-glow light-glow-c" cx="543" cy="795" rx="43.8" ry="60.8" fill="#ff2c2c"/>
+        <ellipse class="light light-c" cx="543" cy="795" rx="25" ry="38" fill="#ff2c2c"/>
+        <ellipse class="light-core light-core-c" cx="539" cy="786" rx="8.8" ry="13.3" fill="#fff"/>
+        <ellipse class="light-glow light-glow-d" cx="155" cy="865" rx="45.5" ry="59.2" fill="#27ff2d"/>
+        <ellipse class="light light-d" cx="155" cy="865" rx="26" ry="37" fill="#27ff2d"/>
+        <ellipse class="light-core light-core-d" cx="151" cy="856" rx="9.1" ry="12.9" fill="#fff"/>
+        <ellipse class="light-glow light-glow-e" cx="354" cy="900" rx="42.0" ry="62.4" fill="#ffef2b"/>
+        <ellipse class="light light-e" cx="354" cy="900" rx="24" ry="39" fill="#ffef2b"/>
+        <ellipse class="light-core light-core-e" cx="350" cy="891" rx="8.4" ry="13.6" fill="#fff"/>
+        <ellipse class="light-glow light-glow-f" cx="389" cy="1037" rx="43.8" ry="67.2" fill="#00dfff"/>
+        <ellipse class="light light-f" cx="389" cy="1037" rx="25" ry="42" fill="#00dfff"/>
+        <ellipse class="light-core light-core-f" cx="385" cy="1028" rx="8.8" ry="14.7" fill="#fff"/>
+        <ellipse class="light-glow light-glow-g" cx="708" cy="1032" rx="43.8" ry="62.4" fill="#ff3838"/>
+        <ellipse class="light light-g" cx="708" cy="1032" rx="25" ry="39" fill="#ff3838"/>
+        <ellipse class="light-core light-core-g" cx="704" cy="1023" rx="8.8" ry="13.6" fill="#fff"/>
+        <ellipse class="light-glow light-glow-h" cx="246" cy="1161" rx="42.0" ry="60.8" fill="#ff3535"/>
+        <ellipse class="light light-h" cx="246" cy="1161" rx="24" ry="38" fill="#ff3535"/>
+        <ellipse class="light-core light-core-h" cx="242" cy="1152" rx="8.4" ry="13.3" fill="#fff"/>
+        <ellipse class="light-glow light-glow-i" cx="548" cy="1234" rx="43.8" ry="64.0" fill="#32ff32"/>
+        <ellipse class="light light-i" cx="548" cy="1234" rx="25" ry="40" fill="#32ff32"/>
+        <ellipse class="light-core light-core-i" cx="544" cy="1225" rx="8.8" ry="14.0" fill="#fff"/>
       </svg>
     </div>
   </div>`;

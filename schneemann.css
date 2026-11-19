@@ -6,23 +6,21 @@
 .snowman-illustration{position:relative;width:100%;background:transparent}
 .snowman-original{display:block;width:100%;height:auto}
 .snowman-lights{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.snowman-lights .light{opacity:.08;mix-blend-mode:screen;filter:drop-shadow(0 0 8px currentColor);animation:light-twinkle 1.35s steps(1,end) infinite}
-.snowman-lights .light-b,.snowman-lights .light-e{animation-delay:-.7s}
-.snowman-lights .light-c,.snowman-lights .light-f{animation-delay:-1.0s}
-.snowman-lights .light-d,.snowman-lights .light-g{animation-delay:-.35s}
-@keyframes light-twinkle{0%,44%{opacity:.02;filter:drop-shadow(0 0 0px currentColor)}45%,100%{opacity:1;filter:drop-shadow(0 0 8px currentColor)}}
-/* Die Wolke hat Volumen durch Farbverlauf, Glanz und Schatten. */
+/* Bulbs mapped to the actual colored bulbs in the new PNG. */
+.snowman-lights .light-glow,.snowman-lights .light,.snowman-lights .light-core{opacity:0;transform-box:fill-box;transform-origin:center;animation:bulb-flash 1.65s steps(1,end) infinite}
+.snowman-lights .light-glow{filter:blur(11px);mix-blend-mode:screen;animation-name:glow-flash}
+.snowman-lights .light{mix-blend-mode:screen;filter:drop-shadow(0 0 6px currentColor)}
+.snowman-lights .light-core{filter:drop-shadow(0 0 5px white);animation-name:core-flash}
+.snowman-lights :is(.light-b,.light-e,.light-h,.light-glow-b,.light-glow-e,.light-glow-h,.light-core-b,.light-core-e,.light-core-h){animation-delay:-.82s}
+.snowman-lights :is(.light-c,.light-f,.light-i,.light-glow-c,.light-glow-f,.light-glow-i,.light-core-c,.light-core-f,.light-core-i){animation-delay:-1.28s}
+.snowman-lights :is(.light-d,.light-g,.light-glow-d,.light-glow-g,.light-core-d,.light-core-g){animation-delay:-.4s}
+@keyframes bulb-flash{0%,47%{opacity:0}48%,100%{opacity:.8}}
+@keyframes glow-flash{0%,47%{opacity:0}48%,100%{opacity:.82}}
+@keyframes core-flash{0%,47%{opacity:0}48%,100%{opacity:1}}
+/* Small ice-textured 3D cloud, unchanged from the previous version. */
 .snowman-cloud{position:absolute;left:7%;bottom:100%;width:82%;height:auto;aspect-ratio:120/70;filter:drop-shadow(0 2px 2px #29475d99)}
 .snowman-cloud svg{width:100%;height:100%;display:block}
 .snowman-cloud i{position:absolute;top:65%;font-size:clamp(7px,1.3vw,11px);color:#f0fbff;text-shadow:0 1px 2px #46748c;font-style:normal;animation:flakes 2.2s linear infinite}
 .snowman-cloud i:nth-of-type(1){left:26%}.snowman-cloud i:nth-of-type(2){left:45%;animation-delay:-.7s}.snowman-cloud i:nth-of-type(3){left:65%;animation-delay:-1.4s}.snowman-cloud i:nth-of-type(4){left:80%;animation-delay:-1.9s}
 @keyframes flakes{0%{opacity:0;transform:translateY(0)}25%{opacity:1}85%{opacity:.9}100%{opacity:0;transform:translateY(22px)}}
-@media(prefers-reduced-motion:reduce){.snowman-cloud i,.snowman-lights .light{animation:none}}
-
-/* White cores make the colored bulbs flash visibly even at small size. */
-.snowman-lights .light-core{opacity:0;animation:core-flash 1.35s steps(1,end) infinite;filter:drop-shadow(0 0 4px #fff)}
-.snowman-lights .light-core-b,.snowman-lights .light-core-e{animation-delay:-.7s}
-.snowman-lights .light-core-c,.snowman-lights .light-core-f{animation-delay:-1s}
-.snowman-lights .light-core-d,.snowman-lights .light-core-g{animation-delay:-.35s}
-@keyframes core-flash{0%,44%{opacity:0}45%,100%{opacity:.95}}
-@media(prefers-reduced-motion:reduce){.snowman-lights .light-core{animation:none}}
+@media(prefers-reduced-motion:reduce){.snowman-cloud i,.snowman-lights ellipse{animation:none}}
