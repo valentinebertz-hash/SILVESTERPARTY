@@ -46,3 +46,7 @@
 @keyframes snow-cloud-float{from{transform:translateY(0) translateX(-2px)}to{transform:translateY(-3px) translateX(2px)}}
 @keyframes snow-flake-fall{0%{opacity:0;translate:0 -5px}20%{opacity:1}85%{opacity:1}100%{opacity:0;translate:2px 13px}}
 @media(prefers-reduced-motion:reduce){.snowman-cloud-puff,.snowman-flake{animation:none}}
+
+/* Frontal bleiben: kein Seitenprofil, keine stauchende Drehung. */
+.snowman-profile-face{display:none!important}
+.snowman-enter,.snowman-exit{transform-origin:center bottom}

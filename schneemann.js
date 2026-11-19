@@ -73,18 +73,12 @@
   async function visit() {
     if (active || stopped || photo.hidden || photo.offsetParent === null) return;
     active = true;
-    // From the right, walking toward the left in a side-on pose.
+    // Immer zum Publikum schauen, auch beim seitlichen Laufen.
     actor.className = 'snowman-actor snowman-enter';
     await wait(2900);
-    // Rotate the entire figure toward the guests; head stays attached.
-    actor.className = 'snowman-actor snowman-turn-front';
-    await wait(700);
     actor.className = 'snowman-actor snowman-wave';
     sound();
-    await wait(3800);
-    // Turn to face the direction of travel BEFORE leaving.
-    actor.className = 'snowman-actor snowman-turn-right';
-    await wait(750);
+    await wait(10000);
     actor.className = 'snowman-actor snowman-exit';
     await wait(2600);
     actor.className = 'snowman-actor';
