@@ -8,27 +8,59 @@
   const stage = document.createElement('div');
   stage.className = 'snowman-stage';
   stage.setAttribute('aria-hidden', 'true');
-  stage.innerHTML = `<div class="snowman-actor"><svg viewBox="0 -49 130 233" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs><radialGradient id="snowbody" cx="38%" cy="24%" r="73%"><stop stop-color="#faf9fc"/><stop offset=".52" stop-color="#f1f0f5"/><stop offset=".83" stop-color="#e5e5ec"/><stop offset="1" stop-color="#cdd0da"/></radialGradient></defs>
-    <ellipse cx="66" cy="174" rx="40" ry="6" fill="#365d73" opacity=".25"/>
-    <g class="snowman-legs"><path d="M49 148 Q42 168 35 171" stroke="#e9e8ef" stroke-width="15" stroke-linecap="round"/><path d="M79 148 Q84 168 93 171" stroke="#e9e8ef" stroke-width="15" stroke-linecap="round"/></g>
-    <g class="snowman-body"><ellipse cx="65" cy="130" rx="39" ry="41" fill="url(#snowbody)" stroke="#d5d5de" stroke-width="1.5"/><ellipse cx="65" cy="91" rx="28" ry="29" fill="url(#snowbody)"/><circle cx="63" cy="106" r="5.5" fill="#333c40"/><circle cx="63" cy="127" r="6.5" fill="#333c40"/><circle cx="63" cy="148" r="6.5" fill="#333c40"/></g>
-    <g class="snowman-arm snowman-arm-left"><path d="M41 109 Q23 96 13 83 M21 94 L9 92 M21 94 L17 81" fill="none" stroke="#6b4834" stroke-width="5" stroke-linecap="round"/></g>
-    <g class="snowman-arm snowman-arm-right"><path d="M89 109 Q108 93 113 75 M106 88 L124 84 M106 88 L108 73" fill="none" stroke="#6b4834" stroke-width="5" stroke-linecap="round"/></g>
-    <!-- Soft neck connection stays behind the face and overlaps the upper snowball. -->
-    <path class="snowman-neck" d="M48 74 Q47 85 45 96 Q65 108 85 96 Q83 85 82 74 Z" fill="url(#snowbody)" stroke="#dedee6" stroke-width="1"/>
-    <g class="snowman-head"><image href="./schneemann-gesicht.png" x="32" y="-1" width="66" height="101" preserveAspectRatio="none" /></g>
-    <g class="snowman-cloud" aria-hidden="true">
-      <g class="snowman-cloud-puff" fill="#f8fcff" stroke="#c8dce8" stroke-width="1.4">
-        <path d="M39 -22 C29 -22 27 -31 34 -35 C37 -43 49 -44 55 -38 C61 -48 77 -46 82 -36 C92 -38 101 -31 98 -23 C96 -18 89 -16 82 -16 L46 -16 C42 -16 39 -18 39 -22 Z"/>
+  stage.innerHTML = `<div class="snowman-actor"><svg viewBox="0 -42 150 242" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="snow-white" cx="35%" cy="25%" r="80%"><stop stop-color="#fff"/><stop offset=".75" stop-color="#f8fbfd"/><stop offset="1" stop-color="#e2eaf0"/></radialGradient>
+    </defs>
+    <ellipse cx="76" cy="192" rx="46" ry="5" fill="#173c4e" opacity=".18"/>
+    <g class="snowman-whole">
+      <g class="snowman-feet">
+        <ellipse cx="55" cy="180" rx="20" ry="11" fill="url(#snow-white)" stroke="#202329" stroke-width="2.5"/>
+        <ellipse cx="100" cy="180" rx="20" ry="11" fill="url(#snow-white)" stroke="#202329" stroke-width="2.5"/>
       </g>
-      <g class="snowman-cloud-flakes" fill="#e8faff" stroke="#a4d7f4" stroke-width="1.1" stroke-linecap="round">
-        <g class="snowman-flake snowman-flake-a" transform="translate(45 -13)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
-        <g class="snowman-flake snowman-flake-b" transform="translate(67 -11)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
-        <g class="snowman-flake snowman-flake-c" transform="translate(87 -12)"><path d="M0 -4 V4 M-4 0 H4 M-3 -3 L3 3 M3 -3 L-3 3"/></g>
+      <g class="snowman-arm-left" fill="none" stroke="#70402b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M49 112 Q26 101 15 77 M15 77 L6 67 M15 77 L25 67 M15 77 L5 79"/>
+      </g>
+      <g class="snowman-arm-right" fill="none" stroke="#70402b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M102 113 Q126 94 132 71 M132 71 L122 62 M132 71 L144 62 M132 71 L145 77"/>
+      </g>
+      <ellipse cx="77" cy="138" rx="44" ry="47" fill="url(#snow-white)" stroke="#25272c" stroke-width="3"/>
+      <ellipse cx="77" cy="102" rx="31" ry="30" fill="url(#snow-white)" stroke="#25272c" stroke-width="2.5"/>
+      <circle cx="76" cy="111" r="7" fill="#161719"/><circle cx="75" cy="143" r="7.5" fill="#161719"/><circle cx="77" cy="166" r="7" fill="#161719"/>
+      <!-- Face, neck and head move together, never separate. -->
+      <g class="snowman-head-group">
+        <path d="M44 72 Q28 54 37 27 Q45 1 77 1 Q110 0 120 31 Q130 65 108 83 Q78 100 48 81 Z" fill="url(#snow-white)" stroke="#24252a" stroke-width="3.2" stroke-linejoin="round"/>
+        <g class="snowman-face-front">
+          <ellipse cx="61" cy="40" rx="13" ry="17" fill="#fff" stroke="#202329" stroke-width="2.5"/>
+          <ellipse cx="92" cy="40" rx="13" ry="17" fill="#fff" stroke="#202329" stroke-width="2.5"/>
+          <circle cx="65" cy="42" r="6.5" fill="#131a20"/><circle cx="88" cy="42" r="6.5" fill="#131a20"/>
+          <path d="M49 22 Q60 15 71 22 M82 21 Q94 15 104 22" fill="none" stroke="#25252a" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M49 57 Q77 97 108 55 Q106 87 79 89 Q55 87 49 57" fill="#131318" stroke="#202329" stroke-width="2.5"/>
+          <path d="M62 79 Q77 86 94 77" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path d="M78 49 Q66 54 68 62 L95 61 Q93 53 78 49" fill="#ff8a22" stroke="#9d4e17" stroke-width="2"/>
+        </g>
+        <g class="snowman-face-profile">
+          <ellipse cx="55" cy="40" rx="12" ry="16" fill="#fff" stroke="#202329" stroke-width="2.5"/>
+          <circle cx="52" cy="41" r="6.5" fill="#131a20"/>
+          <path d="M43 23 Q53 17 62 23" fill="none" stroke="#25252a" stroke-width="3" stroke-linecap="round"/>
+          <path d="M44 57 Q56 89 91 70 Q75 94 53 82 Z" fill="#111117" stroke="#202329" stroke-width="2"/>
+          <path d="M46 48 L7 57 L45 62 Z" fill="#ff8a22" stroke="#9d4e17" stroke-width="2"/>
+        </g>
+        <!-- Christmas hat, in the style of the user's cartoon reference. -->
+        <path d="M45 17 Q44 -7 76 -31 Q85 -35 87 -22 L103 12 Z" fill="#e72f2c" stroke="#24252a" stroke-width="3"/>
+        <path d="M47 14 Q71 5 102 12" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+        <path d="M47 14 Q71 5 102 12" fill="none" stroke="#22252a" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="87" cy="-26" r="9" fill="#fff" stroke="#22252a" stroke-width="2"/>
       </g>
     </g>
-    <g class="snowman-juggle"><circle cx="24" cy="25" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/><circle cx="69" cy="9" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/><circle cx="112" cy="25" r="10" fill="#fff" stroke="#c7dfea" stroke-width="2"/></g>
+    <g class="snowman-cloud" aria-hidden="true">
+      <path class="snowman-cloud-puff" d="M43 -27 C31 -29 32 -39 42 -42 C48 -52 60 -50 66 -43 C77 -55 91 -47 94 -39 C107 -41 113 -30 103 -25 Z" fill="#fff" stroke="#b7d5e4" stroke-width="1.6"/>
+      <g class="snowman-cloud-flakes" fill="none" stroke="#c9efff" stroke-width="2" stroke-linecap="round">
+        <path class="snowman-flake snowman-flake-a" d="M50 -19v9m-4 -5h8"/>
+        <path class="snowman-flake snowman-flake-b" d="M75 -18v9m-4 -5h8"/>
+        <path class="snowman-flake snowman-flake-c" d="M95 -18v9m-4 -5h8"/>
+      </g>
+    </g>
   </svg></div>`;
   frame.appendChild(stage);
   const actor = stage.querySelector('.snowman-actor');
@@ -68,16 +100,18 @@
     if (active || stopped || photo.hidden || photo.offsetParent === null) return;
     active = true;
     actor.className = 'snowman-actor snowman-enter';
-    await wait(4200);
-    actor.className = 'snowman-actor snowman-wave'; sound();
-    await wait(2100);
-    actor.className = 'snowman-actor snowman-grimace'; sound();
-    await wait(1700);
-    actor.className = 'snowman-actor snowman-juggling'; sound();
-    await wait(3000);
+    await wait(2800);
+    actor.className = 'snowman-actor snowman-turn-front';
+    await wait(550);
+    actor.className = 'snowman-actor snowman-wave';
+    sound();
+    await wait(3600);
+    actor.className = 'snowman-actor snowman-turn-away';
+    await wait(550);
     actor.className = 'snowman-actor snowman-exit';
-    await wait(3800);
-    actor.className = 'snowman-actor'; active = false;
+    await wait(2300);
+    actor.className = 'snowman-actor';
+    active = false;
   }
   // First visit shortly after the photo becomes visible; later visits are irregular.
   let nextVisit = Date.now() + 3500;
