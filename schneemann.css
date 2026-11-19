@@ -49,3 +49,29 @@
 @keyframes original-wave{from{transform:rotate(-25deg)}to{transform:rotate(35deg)}}
 @keyframes original-face{from{transform:rotate(-15deg) scale(.9)}to{transform:rotate(15deg) scale(1.15)}}
 @keyframes original-ball{0%,100%{transform:translateY(5px)}50%{transform:translateY(-35px)}}
+
+/* Bewegliche Originalfigur: getrennte Arme, Kopf und Fuesse */
+.snowman-figure{aspect-ratio:467/694;position:relative;width:100%;}
+.snowman-figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:translateZ(0);}
+.snowman-figure .sm-body{z-index:1}
+.snowman-figure .sm-head{z-index:3;transform-origin:50% 54%}
+.snowman-figure .sm-arm-left{z-index:4;transform-origin:32% 59%}
+.snowman-figure .sm-arm-right{z-index:4;transform-origin:70% 59%}
+.snowman-figure .sm-foot-left{z-index:5;transform-origin:34% 86%}
+.snowman-figure .sm-foot-right{z-index:5;transform-origin:65% 86%}
+.snowman-enter .sm-foot-left,.snowman-exit .sm-foot-left{animation:sm-step-left .38s ease-in-out infinite alternate}
+.snowman-enter .sm-foot-right,.snowman-exit .sm-foot-right{animation:sm-step-right .38s ease-in-out infinite alternate}
+.snowman-enter .sm-arm-left,.snowman-exit .sm-arm-left{animation:sm-arm-swing .38s ease-in-out infinite alternate}
+.snowman-enter .sm-arm-right,.snowman-exit .sm-arm-right{animation:sm-arm-swing .38s ease-in-out infinite alternate-reverse}
+.snowman-wave .sm-arm-right{animation:sm-wave-arm .3s ease-in-out infinite alternate}
+.snowman-grimace .sm-head{animation:sm-head-tilt .38s ease-in-out infinite alternate}
+.snowman-juggling .sm-arm-left{animation:sm-juggle-arm .4s ease-in-out infinite alternate}
+.snowman-juggling .sm-arm-right{animation:sm-juggle-arm .4s ease-in-out infinite alternate-reverse}
+.snowman-grimace .snowman-face,.snowman-wave .snowman-wave-hand{display:none!important}
+@keyframes sm-step-left{from{transform:rotate(-12deg) translateY(-3px)}to{transform:rotate(10deg) translateY(3px)}}
+@keyframes sm-step-right{from{transform:rotate(12deg) translateY(3px)}to{transform:rotate(-10deg) translateY(-3px)}}
+@keyframes sm-arm-swing{from{transform:rotate(-9deg)}to{transform:rotate(10deg)}}
+@keyframes sm-wave-arm{from{transform:rotate(-13deg)}to{transform:rotate(-48deg)}}
+@keyframes sm-head-tilt{from{transform:rotate(-8deg) scaleX(.97)}to{transform:rotate(8deg) scaleX(1.03)}}
+@keyframes sm-juggle-arm{from{transform:rotate(-16deg)}to{transform:rotate(12deg)}}
+@media(prefers-reduced-motion:reduce){.snowman-enter .sm-foot-left,.snowman-enter .sm-foot-right,.snowman-exit .sm-foot-left,.snowman-exit .sm-foot-right,.snowman-wave .sm-arm-right{animation-duration:1.4s}}

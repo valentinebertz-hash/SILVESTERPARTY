@@ -8,7 +8,7 @@
   const stage = document.createElement('div');
   stage.className = 'snowman-stage';
   stage.setAttribute('aria-hidden', 'true');
-  stage.innerHTML = `<div class="snowman-actor"><div class="snowman-figure"><img src="./mein-schneemann.png" alt="" draggable="false"><span class="snowman-face" aria-hidden="true">😜</span><span class="snowman-wave-hand" aria-hidden="true">👋</span><span class="snowman-snowballs" aria-hidden="true"><i></i><i></i><i></i></span></div></div>`;
+  stage.innerHTML = `<div class="snowman-actor"><div class="snowman-figure"><img class="sm-body" src="./schneemann-body.png" alt="" draggable="false"><img class="sm-head" src="./schneemann-head.png" alt="" draggable="false"><img class="sm-arm-left" src="./schneemann-arm-left.png" alt="" draggable="false"><img class="sm-arm-right" src="./schneemann-arm-right.png" alt="" draggable="false"><img class="sm-foot-left" src="./schneemann-foot-left.png" alt="" draggable="false"><img class="sm-foot-right" src="./schneemann-foot-right.png" alt="" draggable="false"><span class="snowman-snowballs" aria-hidden="true"><i></i><i></i><i></i></span></div></div>`;
   frame.appendChild(stage);
   const actor = stage.querySelector('.snowman-actor');
   const button = document.createElement('button');
