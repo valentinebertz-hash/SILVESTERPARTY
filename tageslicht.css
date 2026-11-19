@@ -1,0 +1,23 @@
+
+/* Tageslicht: alles auf das Hoffoto begrenzt, ohne Schneemann/Hasen zu verändern */
+.snowman-photo-frame{isolation:isolate}
+.party-light-tint{position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(175deg,rgba(9,23,61,.72),rgba(11,29,70,.50) 55%,rgba(13,34,66,.62));
+ opacity:var(--party-night,0);transition:opacity 120s linear}
+.party-festive-lights{position:absolute;inset:0;z-index:2;pointer-events:none;
+ opacity:var(--party-lights,0);transition:opacity 120s linear;overflow:hidden}
+.party-light-wire{position:absolute;left:-3%;top:3%;width:106%;height:24%;overflow:visible}
+.party-light-wire path{fill:none;stroke:#1d342b;stroke-width:2.5;opacity:.8}
+.party-light-wire .bulb{filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px currentColor);
+ animation:party-bulb-glow 2.1s ease-in-out infinite alternate}
+.party-light-wire .bulb:nth-of-type(3n){animation-delay:-.7s}
+.party-light-wire .bulb:nth-of-type(3n + 1){animation-delay:-1.4s}
+@keyframes party-bulb-glow{0%,24%{opacity:.38}55%,100%{opacity:1}}
+.party-festive-lights .party-spark{position:absolute;width:3px;height:3px;background:#f4faff;
+ border-radius:50%;box-shadow:0 0 7px 2px #b4dfff;animation:party-sparkle 3s ease-in-out infinite alternate}
+.party-spark:nth-child(2n){animation-delay:-1.6s}
+@keyframes party-sparkle{from{opacity:.12;transform:scale(.7)}to{opacity:.8;transform:scale(1.2)}}
+@media(prefers-reduced-motion:reduce){
+ .party-light-tint,.party-festive-lights{transition:none}
+ .party-light-wire .bulb,.party-spark{animation:none}
+}
